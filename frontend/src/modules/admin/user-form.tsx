@@ -2,8 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAuth } from "../hooks/useAuth";
-import axiosInstance from "../utils/axiosInstance";
+
 import { useNavigate } from "react-router-dom";
 import {
   Form,
@@ -21,9 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib";
 
 // Zod schema for form validation
 const userFormSchema = z.object({
@@ -36,7 +37,7 @@ const userFormSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters" })
     .regex(/[0-9]/, { message: "Password must contain at least one number" }),
   role: z.enum(["user", "admin"], { message: "Role is required" }),
-  isBlocked: z.boolean().default(false),
+  // isBlocked: z.boolean().default(false),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -61,14 +62,13 @@ const UserCreationForm: React.FC = () => {
       email: "",
       password: "",
       role: "user",
-      isBlocked: false,
     },
   });
 
   // Handle form submission
   const onSubmit = async (data: UserFormValues) => {
     try {
-      await axiosInstance.post("/users", data);
+      await api.post("/users", data);
       toast({
         title: "Success",
         description: "User created successfully",
@@ -157,7 +157,7 @@ const UserCreationForm: React.FC = () => {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="isBlocked"
               render={({ field }) => (
@@ -174,7 +174,7 @@ const UserCreationForm: React.FC = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <div className="flex space-x-4">
               <Button
                 type="submit"

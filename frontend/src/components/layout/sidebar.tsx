@@ -10,18 +10,24 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     {
       name: "Dashboard",
-      path: "/dashboard",
+      path: "/admin/dashboard",
       icon: "🏠",
       roles: ["user", "admin"],
     },
     { name: "Tasks", path: "/tasks", icon: "📋", roles: ["user", "admin"] },
+    {
+      name: "Create User",
+      path: "/admin/users/create",
+      icon: "➕",
+      roles: ["user", "admin"],
+    },
     {
       name: "Create Task",
       path: "/tasks/create",
       icon: "➕",
       roles: ["user", "admin"],
     },
-    { name: "Users", path: "/users", icon: "👥", roles: ["admin"] },
+    { name: "Users", path: "/admin/users", icon: "👥", roles: ["admin"] },
   ];
 
   return (

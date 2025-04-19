@@ -1,5 +1,4 @@
-import { Footer, Navbar } from "@/components/layout";
-import { Sidebar } from "lucide-react";
+import { Footer, Navbar, Sidebar } from "@/components/layout";
 import { Outlet } from "react-router-dom";
 
 // Main Layout Component

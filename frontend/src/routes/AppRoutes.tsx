@@ -7,8 +7,16 @@ import { AdminRoutes } from "./AdminRoutes";
 import { UserRoutes } from "./UserRoutes";
 import { RootState } from "../store/store";
 import { LoginForm } from "../components/auth/login-form";
+import { useEffect } from "react";
+import { useAppDispatch } from "@/store/hiook";
+import { fetchMe } from "@/store/thunks";
 
 const AppRoutes: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchMe());
+  }, [dispatch]);
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );

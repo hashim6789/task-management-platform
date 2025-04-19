@@ -3,6 +3,7 @@ import { Role } from "../types";
 import ProtectedRoute from "./ProtectedRoute";
 import Layout from "@/modules/admin/layout";
 import AdminDashboard from "@/modules/admin/dashboard";
+import UserCreationForm from "@/modules/admin/user-form";
 
 export const AdminRoutes = (isAuthenticated: boolean, currentRole: Role) => [
   {
@@ -22,7 +23,10 @@ export const AdminRoutes = (isAuthenticated: boolean, currentRole: Role) => [
         children: [
           {
             element: <Layout />,
-            children: [{ path: "dashboard", element: <AdminDashboard /> }],
+            children: [
+              { path: "dashboard", element: <AdminDashboard /> },
+              { path: "users/create", element: <UserCreationForm /> },
+            ],
           },
         ],
       },
