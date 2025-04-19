@@ -1,26 +1,26 @@
-// import { IUserModel } from "@/models/implementation/user.model";
+import { IUser } from "@/models";
+import { CreateUserRequestDTO } from "@/schema/user";
 
-// export interface IUserRepository {
-//   create(user: IUserModel): Promise<IUserModel>;
+export interface IUserRepository {
+  findByEmail(email: string): Promise<IUser | null>;
 
-//   findByEmail(email: string): Promise<IUserModel | null>;
+  create(user: CreateUserRequestDTO): Promise<IUser>;
 
-//   findByUsername(username: string): Promise<IUserModel | null>
+  //   findByUsername(username: string): Promise<IUserModel | null>
 
-//   findOneWithUsernameOrEmail(value: string): Promise<IUserModel | null>
+  findOneWithUsernameOrEmail(value: string): Promise<IUser | null>;
 
-//   findByUsername(username: string): Promise<IUserModel | null>;
+  //   findByUsername(username: string): Promise<IUserModel | null>;
 
-//   findUserById(id: string): Promise<IUserModel | null>;
+  //   findUserById(id: string): Promise<IUserModel | null>;
 
-//   updatePassword(email: string, hashedPassword: string): Promise<IUserModel | null>;
+  //   updatePassword(email: string, hashedPassword: string): Promise<IUserModel | null>;
 
-//   updateUsername(id: string, username: string): Promise<IUserModel | null>;
+  //   updateUsername(id: string, username: string): Promise<IUserModel | null>;
 
-//   updateUserProfile(id: string, updateData: Partial<IUserModel>): Promise<IUserModel | null>;
+  //   updateUserProfile(id: string, updateData: Partial<IUserModel>): Promise<IUserModel | null>;
 
-//   updateEmail(id: string, email: string): Promise<IUserModel | null>;
+  //   updateEmail(id: string, email: string): Promise<IUserModel | null>;
 
-//   updateProfilePicture(id: string, profilePicture: string): Promise<void>;
-
-// }
+  //   updateProfilePicture(id: string, profilePicture: string): Promise<void>;
+}

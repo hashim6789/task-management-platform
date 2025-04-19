@@ -1,235 +1,78 @@
-// import {IUserRepository} from "@/repositories/interface/IUserRepository";
-// import {IAuthService} from "../interface/IAuthService";
-// import {createHttpError} from "@/utils/http-error.util";
-// import {HttpStatus} from "@/constants/status.constant";
-// import {HttpResponse} from "@/constants/response-message.constant";
-// import {IUserModel} from "@/models/implementation/user.model";
-// import {generateNanoId} from "@/utils/generate-nanoid";
-// import {JwtPayload} from "jsonwebtoken";
-// import {
-//     comparePassword,
-//     generateAccessToken,
-//     generateOTP,
-//     generateRefreshToken,
-//     hashPassword,
-//     sendOtpEmail,
-//     sendResetPasswordEmail,
-//     generateUniqueUsername,
-//     verifyRefreshToken
-// } from "@/utils";
-// import {redisClient} from "@/configs";
-// import {IUser} from "shared/types";
-// import fetchGoogleUser from "@/utils/google-auth";
+import { IUserRepository } from "@/repositories/interface";
+import { IAuthService } from "../interface";
+import { IUser } from "@/models";
+import {
+  comparePassword,
+  createHttpError,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "@/utils";
+import { HttpResponse, HttpStatus } from "@/constants";
+import { JwtPayload } from "jsonwebtoken";
 
-// //!   Implementation for Auth Service
-// export class AuthService implements IAuthService {
-//     constructor(private readonly _userRepository: IUserRepository) {
-//     }
+//!   Implementation for Auth Service
+export class AuthService implements IAuthService {
+  constructor(private readonly _userRepository: IUserRepository) {}
 
-//     async signup(
-//         user: IUser
-//     ): Promise<string> {
-//         const userExist = await this._userRepository.findByEmail(user.email);
+  async login(
+    identifier: string,
+    password: string
+  ): Promise<{ accessToken: string; refreshToken: string; user: IUser }> {
+    const user =
+      await this._userRepository.findOneWithUsernameOrEmail(identifier);
+    console.log(user);
 
-//         if (userExist) {
-//             throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_EXIST);
-//         }
+    if (!user) {
+      throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+    }
 
-//         const otp = generateOTP();
+    // const isMatch = await comparePassword(password, user.password as string);
 
-//         await sendOtpEmail(user.email, otp);
+    // if (!isMatch) {
+    //   throw createHttpError(
+    //     HttpStatus.BAD_REQUEST,
+    //     HttpResponse.PASSWORD_INCORRECT
+    //   );
+    // }
 
-//         const response = await redisClient.setEx(
-//             user.email,
-//             300,
-//             JSON.stringify({
-//                 ...user,
-//                 otp,
-//             })
-//         );
+    const payload = { id: user._id, role: user.role, email: user.email };
 
-//         if (!response) {
-//             throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, HttpResponse.SERVER_ERROR);
-//         }
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
-//         return user.email
-//     }
+    return { accessToken, refreshToken, user };
+  }
 
-//     async signin(
-//         identifier: string,
-//         password: string
-//     ): Promise<{ accessToken: string; refreshToken: string }> {
-//         const user = await this._userRepository.findOneWithUsernameOrEmail(identifier);
+  async refreshAccessToken(token: string) {
+    if (!token) {
+      throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_TOKEN);
+    }
 
-//         if (!user) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
-//         }
+    const decoded = verifyRefreshToken(token) as JwtPayload;
+    if (!decoded) {
+      throw createHttpError(HttpStatus.NO_CONTENT, HttpResponse.TOKEN_EXPIRED);
+    }
 
-//         const isMatch = await comparePassword(password, user.password as string);
+    const payload = {
+      id: decoded.id,
+      role: decoded.role,
+      email: decoded.email,
+    };
 
-//         if (!isMatch) {
-//             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_INCORRECT);
-//         }
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
-//         const payload = {id: user._id, role: user.role, username: user.username};
+    return { accessToken, refreshToken };
+  }
 
-//         const accessToken = generateAccessToken(payload);
-//         const refreshToken = generateRefreshToken(payload);
+  // async getUser(userId: string): Promise<IUserModel> {
+  //     const user = await this._userRepository.findUserById(userId)
 
-//         return {accessToken, refreshToken};
-//     }
+  //     if (!user) {
+  //         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND)
+  //     }
 
-//     async googleAuth(token: string): Promise<{ accessToken: string; refreshToken: string, user: IUserModel }> {
-//         // fetch the user details from the Google api
-//         const googleUser = await fetchGoogleUser(token);
-//         if (!googleUser) {
-//             throw new Error('Invalid credentials');
-//         }
-
-//         console.log("Google user details:", JSON.stringify(googleUser));
-//         const userExist = await this._userRepository.findByEmail(googleUser.email);
-
-//         if (userExist) {
-//             const payload = {id: userExist._id, role: userExist.role, username: userExist.username};
-
-//             const accessToken = generateAccessToken(payload);
-//             const refreshToken = generateRefreshToken(payload);
-
-//             return {user: userExist, accessToken, refreshToken};
-//         }
-
-//         const uniqUsername = await generateUniqueUsername(googleUser.name)
-
-//         const user = {
-//             username: uniqUsername,
-//             name: googleUser.given_name,
-//             email: googleUser.email,
-//             password: "fghjkl;lkjhgfcdfghj",
-//         };
-
-//         const createdUser = await this._userRepository.create(user as IUserModel);
-
-//         if (!createdUser) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_CREATION_FAILED);
-
-//         const payload = {id: createdUser._id, role: createdUser.role, username: createdUser.username};
-
-//         const accessToken = generateAccessToken(payload);
-//         const refreshToken = generateRefreshToken(payload)
-
-//         return {user: createdUser, accessToken, refreshToken}
-//     }
-
-//     async verifyOtp(
-//         otp: string,
-//         email: string
-//     ) {
-//         const storedDataString = await redisClient.get(email);
-//         if (!storedDataString) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.OTP_NOT_FOUND);
-//         }
-
-//         const storedData = JSON.parse(storedDataString);
-
-//         if (storedData.otp !== otp) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
-
-//         const uniqUsername = await generateUniqueUsername(storedData.name)
-
-//         const user = {
-//             username: uniqUsername,
-//             name: storedData.name,
-//             email: storedData.email,
-//             password: storedData.password,
-//         };
-
-//         const createdUser = await this._userRepository.create(user as IUserModel);
-
-//         if (!createdUser) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_CREATION_FAILED);
-
-//         await redisClient.del(email);
-
-//         const payload = {id: createdUser._id, role: createdUser.role, username: createdUser.username};
-
-//         const accessToken = generateAccessToken(payload);
-//         const refreshToken = generateRefreshToken(payload)
-
-//         return {user: createdUser, accessToken, refreshToken}
-//     }
-
-//     async verifyForgotPassword(
-//         email: string
-//     ): Promise<{ status: number; message: string }> {
-//         const isExist = await this._userRepository.findByEmail(email);
-
-//         if (!isExist) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
-//         }
-//         const token = generateNanoId();
-
-//         const storeOnReddis = await redisClient.setEx(token, 300, isExist.email);
-
-//         if (!storeOnReddis) {
-//             throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, HttpResponse.SERVER_ERROR);
-//         }
-//         await sendResetPasswordEmail(isExist.email, token);
-
-//         return {
-//             status: HttpStatus.OK,
-//             message: HttpResponse.RESET_PASS_LINK,
-//         };
-//     }
-
-//     async getResetPassword(
-//         token: string,
-//         password: string
-//     ): Promise<{ status: number; message: string }> {
-//         const getEmail = await redisClient.get(token);
-//         if (!getEmail) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TOKEN_EXPIRED);
-//         }
-
-//         const hashedPassword = await hashPassword(password);
-
-//         const updateUser = await this._userRepository.updatePassword(getEmail, hashedPassword);
-//         if (!updateUser) {
-//             throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, HttpResponse.SERVER_ERROR);
-//         }
-
-//         await redisClient.del(token);
-
-//         return {
-//             status: HttpStatus.OK,
-//             message: HttpResponse.PASSWORD_CHANGE_SUCCESS,
-//         };
-//     }
-
-//     async refreshAccessToken(
-//         token: string
-//     ) {
-
-//         if (!token) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_TOKEN);
-//         }
-
-//         const decoded = verifyRefreshToken(token) as JwtPayload;
-//         if (!decoded) {
-//             throw createHttpError(HttpStatus.NO_CONTENT, HttpResponse.TOKEN_EXPIRED);
-//         }
-
-//         const payload = {id: decoded.id, role: decoded.role, username: decoded.username};
-
-//         const accessToken = generateAccessToken(payload);
-//         const refreshToken = generateRefreshToken(payload)
-
-//         return {accessToken, refreshToken};
-//     }
-
-//     async getUser(userId: string): Promise<IUserModel> {
-//         const user = await this._userRepository.findUserById(userId)
-
-//         if (!user) {
-//             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND)
-//         }
-
-//         return user
-//     }
-// }
+  //     return user
+  // }
+}

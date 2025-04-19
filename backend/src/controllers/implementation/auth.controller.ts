@@ -1,164 +1,77 @@
-// import {Request, Response, NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
+import { IAuthController } from "../interface";
+import { IAuthService } from "@/services/interface";
+import { deleteCookie, setCookie } from "@/utils/refresh-cookie.util";
+import { HttpResponse, HttpStatus } from "@/constants";
 // import {IAuthService} from "../../services/interface/IAuthService";
 // import {IAuthController} from "../interface/IAuthController";
 // import {HttpStatus} from "@/constants/status.constant";
 // import {HttpResponse} from "@/constants";
 // import {setCookie} from "@/utils/refresh-cookie.util";
 
-// export class AuthController implements IAuthController {
-//     constructor(private _authService: IAuthService) {
-//     }
+export class AuthController implements IAuthController {
+  constructor(private _authService: IAuthService) {}
 
-//     async signup(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, username, password } = req.body;
+      console.log(req.body);
 
-//             const user = await this._authService.signup(req.body);
+      const { accessToken, refreshToken, user } = await this._authService.login(
+        email || username,
+        password
+      );
 
-//             res.status(HttpStatus.OK).json({
-//                 email: user,
-//             });
-//         } catch (err) {
-//             next(err);
-//         }
-//     }
+      setCookie(res, refreshToken, "refreshToken");
+      setCookie(res, accessToken, "accessToken");
 
-//     async signin(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
-//             const {email, username, password} = req.body;
+      res.status(HttpStatus.OK).json(user);
+    } catch (err) {
+      next(err);
+    }
+  }
 
-//             const tokens = await this._authService.signin(email || username, password);
+  async logout(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      deleteCookie(res, "refreshToken");
+      deleteCookie(res, "accessToken");
+      res.status(HttpStatus.OK).json({ message: HttpResponse.LOGOUT_SUCCESS });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-//             setCookie(res, tokens.refreshToken)
+  async refreshAccessToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { refreshToken } = req.cookies;
 
-//             res.status(HttpStatus.OK).json({token: tokens.accessToken});
-//         } catch (err) {
-//             next(err);
-//         }
-//     }
+      const { accessToken, refreshToken: newRefreshToken } =
+        await this._authService.refreshAccessToken(refreshToken);
 
-//     async googleAuth(req: Request, res: Response, next: NextFunction) {
-//         try {
-//             const {id_token: token} = req.body;
+      setCookie(res, newRefreshToken, "accessToken");
 
-//             const {user, accessToken, refreshToken} = await this._authService.googleAuth(token);
+      res.status(HttpStatus.OK).json({ token: accessToken });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-//             setCookie(res, refreshToken)
+  // async me(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //     try {
+  //         const {id} = JSON.parse(req.headers["x-user-payload"] as string)
+  //         const user = await this._authService.getUser(id)
 
-//             console.log("google login success", user)
-
-//             res.status(HttpStatus.OK).json({
-//                 message: HttpResponse.GOOGLE_LOGIN_SUCCESS,
-//                 user,
-//                 token: accessToken
-//             });
-//         } catch (err) {
-//             next(err);
-//         }
-//     }
-
-//     async verifyOtp(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
-//             const {otp, email} = req.body;
-//             const {user, accessToken, refreshToken} = await this._authService.verifyOtp(
-//                 otp,
-//                 email
-//             );
-//             setCookie(res, refreshToken)
-
-//             res.status(HttpStatus.CREATED).json({
-//                 message: HttpResponse.USER_CREATION_SUCCESS,
-//                 user,
-//                 token: accessToken
-//             });
-//         } catch (err) {
-//             next(err);
-//         }
-//     }
-
-//     async forgotPassword(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
-//             const {email} = req.body;
-//             const verifyForgotPassword = await this._authService.verifyForgotPassword(email);
-//             res.status(HttpStatus.OK).json(verifyForgotPassword);
-
-//         } catch (error) {
-//             next(error)
-//         }
-//     }
-
-//     async resetPassword(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
-//             const {password, token} = req.body;
-//             const updateUserPassword = await this._authService.getResetPassword(token, password);
-//             res.status(HttpStatus.OK).json(updateUserPassword)
-
-//         } catch (error) {
-//             next(error)
-//         }
-//     }
-
-//     async logout(_req: Request, res: Response, next: NextFunction): Promise<void> {
-//         try {
-//             res.clearCookie('refreshToken', {
-//                 httpOnly: true,
-//                 secure: process.env.NODE_ENV === 'production',
-//                 sameSite: 'strict'
-//             })
-//             res.status(HttpStatus.OK).json({message: HttpResponse.LOGOUT_SUCCESS});
-//         } catch (error) {
-//             next(error)
-//         }
-//     }
-
-//     async refreshAccessToken(
-//         req: Request,
-//         res: Response,
-//         next: NextFunction
-//     ): Promise<void> {
-//         try {
-//             const {refreshToken} = req.cookies;
-
-//             const {
-//                 accessToken,
-//                 refreshToken: newRefreshToken
-//             } = await this._authService.refreshAccessToken(refreshToken);
-
-//             setCookie(res, newRefreshToken)
-
-//             res.status(HttpStatus.OK).json({token: accessToken});
-//         } catch (error) {
-//             next(error)
-//         }
-//     }
-
-//     async me(req: Request, res: Response, next: NextFunction): Promise<void> {
-//         try {
-//             const {id} = JSON.parse(req.headers["x-user-payload"] as string)
-//             const user = await this._authService.getUser(id)
-
-//             res.status(HttpStatus.OK).json(user)
-//         } catch (error) {
-//             next(error)
-//         }
-//     }
-// }
+  //         res.status(HttpStatus.OK).json(user)
+  //     } catch (error) {
+  //         next(error)
+  //     }
+  // }
+}

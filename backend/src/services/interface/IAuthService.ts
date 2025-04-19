@@ -1,22 +1,22 @@
-// import {IUserModel} from "@/models/implementation/user.model";
-// import {IUser} from "shared/types";
+import { IUser } from "@/models";
 
-// export interface IAuthService {
+export interface IAuthService {
+  login(
+    identifier: string,
+    password: string
+  ): Promise<{ accessToken: string; refreshToken: string; user: IUser }>;
 
-//     signup(user: IUser): Promise<string>;
+  // googleAuth(token: string): Promise<{ user: IUserModel; accessToken: string; refreshToken: string }>;
 
-//     signin(identifier: string, password: string): Promise<{ accessToken: string; refreshToken: string }>;
+  // verifyOtp(otp: string, email: string): Promise<{ user: IUserModel, accessToken: string, refreshToken: string }>;
 
-//     googleAuth(token: string): Promise<{ user: IUserModel; accessToken: string; refreshToken: string }>;
+  // verifyForgotPassword(email: string): Promise<{ status: number; message: string }>;
 
-//     verifyOtp(otp: string, email: string): Promise<{ user: IUserModel, accessToken: string, refreshToken: string }>;
+  // getResetPassword(token: string, password: string): Promise<{ status: number; message: string }>;
 
-//     verifyForgotPassword(email: string): Promise<{ status: number; message: string }>;
+  refreshAccessToken(
+    token: string
+  ): Promise<{ accessToken: string; refreshToken: string }>;
 
-//     getResetPassword(token: string, password: string): Promise<{ status: number; message: string }>;
-
-//     refreshAccessToken(token: string): Promise<{ accessToken: string, refreshToken: string }>;
-
-//     getUser(userId: string): Promise<IUserModel>;
-
-// }
+  // getUser(userId: string): Promise<IUserModel>;
+}

@@ -6,10 +6,10 @@ export const env = {
     return process.env.MONGO_URI;
   },
   get JWT_ACCESS_SECRET() {
-    return process.env.JWT_ACCESS_SECRET;
+    return process.env.JWT_ACCESS_SECRET || "access";
   },
   get JWT_REFRESH_SECRET() {
-    return process.env.JWT_REFRESH_SECRET;
+    return process.env.JWT_REFRESH_SECRET || "refresh";
   },
   get REDIS_URL() {
     return process.env.REDIS_URL;
@@ -37,5 +37,5 @@ export const env = {
   },
   get NODE_ENV() {
     return process.env.NODE_ENV;
-  }
+  },
 };

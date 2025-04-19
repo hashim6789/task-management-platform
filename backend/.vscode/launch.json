@@ -1,0 +1,30 @@
+// {
+//   "version": "0.2.0",
+//   "configurations": [
+//     {
+//       "type": "node",
+//       "request": "launch",
+//       "name": "Debug TypeScript",
+//       "preLaunchTask": "tsc: build - tsconfig.json",
+//       "program": "${workspaceFolder}/src/index.ts",
+//       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+//       "sourceMaps": true,
+//       "runtimeArgs": ["-r", "ts-node/register"]
+//     }
+//   ]
+// }
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug TypeScript",
+      "program": "${workspaceFolder}/dist/index.js",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true
+    }
+  ]
+}
