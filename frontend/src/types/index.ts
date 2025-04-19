@@ -30,7 +30,7 @@ export interface User {
 //   updatedAt: string;
 // }
 
-export type TaskStatus = "pending" | "in-progress" | "completed";
+export type TaskStatus = "todo" | "in-progress" | "completed";
 export interface Task {
   _id: string;
   title: string;

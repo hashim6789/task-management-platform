@@ -1,20 +1,10 @@
-import { Navigate } from "react-router-dom";
-import { Role } from "../types";
 import ProtectedRoute from "./ProtectedRoute";
 import Layout from "@/modules/admin/layout";
 import AdminDashboard from "@/modules/admin/dashboard";
-import UserCreationForm from "@/modules/admin/user-form";
+import { UsersPage } from "@/pages/users-page";
+import { TasksPage } from "@/pages/tasks-page";
 
-export const AdminRoutes = (isAuthenticated: boolean, currentRole: Role) => [
-  {
-    path: "/admin/login",
-    element: isAuthenticated ? (
-      <Navigate to={`/${currentRole}/dashboard`} />
-    ) : (
-      <Navigate to={`/login`} />
-    ),
-    children: [],
-  },
+export const AdminRoutes = () => [
   {
     path: "/admin",
     children: [
@@ -25,7 +15,8 @@ export const AdminRoutes = (isAuthenticated: boolean, currentRole: Role) => [
             element: <Layout />,
             children: [
               { path: "dashboard", element: <AdminDashboard /> },
-              { path: "users/create", element: <UserCreationForm /> },
+              { path: "users", element: <UsersPage /> },
+              { path: "tasks", element: <TasksPage /> },
             ],
           },
         ],

@@ -1,5 +1,5 @@
-import { Navigate } from "react-router-dom";
-import { Role } from "../types";
+// import { Navigate } from "react-router-dom";
+// import { Role } from "../types";
 // import LoginPage from "../modules/auth/pages/Login";
 // import { UserRole } from "../types";
 // import ProtectedRoute from "./ProtectedRoute";
@@ -13,22 +13,7 @@ import { Role } from "../types";
 // import loginImage from "../assets/img/wall_paer_02.jpeg";
 // import AdminRevenueManagement from "../modules/admin/pages/revenue/AdminReveneManagement";
 
-export const UserRoutes = (isAuthenticated: boolean, currentRole: Role) => [
-  {
-    path: "/admin/login",
-    element: isAuthenticated ? (
-      <Navigate to={`/${currentRole}/dashboard`} />
-    ) : (
-      <Navigate to={`/login`} />
-      //   <LoginPage
-      //     role="admin"
-      //     theme="green"
-      //     loginImage={loginImage}
-      //     allowSignup={false}
-      //   />
-    ),
-    children: [],
-  },
+export const UserRoutes = () => [
   //   {
   //     path: "/admin",
   //     children: [

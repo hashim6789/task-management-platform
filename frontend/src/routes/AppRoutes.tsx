@@ -1,5 +1,5 @@
 import React from "react";
-import { useRoutes } from "react-router-dom";
+import { Navigate, useRoutes } from "react-router-dom";
 import { useSelector } from "react-redux";
 // import { ServerErrorPage } from "../modules/shared/Error";
 // import LoginPage from "../modules/auth/pages/Login";
@@ -17,22 +17,28 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     dispatch(fetchMe());
   }, [dispatch]);
-  const { user, isAuthenticated } = useSelector(
-    (state: RootState) => state.auth
-  );
-  //   const {} = useSelector((state: RootState) => state.theme);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const routes = [
-    ...AdminRoutes(isAuthenticated, user ? user.role : "user"),
-    ...UserRoutes(isAuthenticated, user ? user.role : "user"),
+    ...AdminRoutes(),
+    ...UserRoutes(),
     {
       path: "/login",
-      element: <LoginForm />,
+      element: user ? (
+        <Navigate to={`/${user.role}/dashboard`} />
+      ) : (
+        <LoginForm />
+      ),
     },
     {
       path: "/",
-      element: <LoginForm />,
+      element: user ? (
+        <Navigate to={`/${user.role}/dashboard`} />
+      ) : (
+        <LoginForm />
+      ),
     },
+
     // {
     //   path: "/500",
     //   element: <ServerErrorPage role="admin" theme={"light"} />,

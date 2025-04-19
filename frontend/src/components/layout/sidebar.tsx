@@ -14,20 +14,25 @@ export const Sidebar: React.FC = () => {
       icon: "🏠",
       roles: ["user", "admin"],
     },
-    { name: "Tasks", path: "/tasks", icon: "📋", roles: ["user", "admin"] },
-    {
-      name: "Create User",
-      path: "/admin/users/create",
-      icon: "➕",
-      roles: ["user", "admin"],
-    },
-    {
-      name: "Create Task",
-      path: "/tasks/create",
-      icon: "➕",
-      roles: ["user", "admin"],
-    },
     { name: "Users", path: "/admin/users", icon: "👥", roles: ["admin"] },
+    {
+      name: "Tasks",
+      path: "/admin/tasks",
+      icon: "📋",
+      roles: ["user", "admin"],
+    },
+    // {
+    //   name: "Create User",
+    //   path: "/admin/users/create",
+    //   icon: "➕",
+    //   roles: ["user", "admin"],
+    // },
+    // {
+    //   name: "Create Task",
+    //   path: "/tasks/create",
+    //   icon: "➕",
+    //   roles: ["user", "admin"],
+    // },
   ];
 
   return (
