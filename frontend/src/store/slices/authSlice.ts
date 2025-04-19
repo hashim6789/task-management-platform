@@ -3,14 +3,14 @@ import { Role, User } from "../../types";
 
 interface AuthState {
   user: User | null;
-  currenntRole: Role;
+  currentRole: Role;
   isAuthenticated: boolean;
   isBlocked: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
-  currenntRole: "user",
+  currentRole: "user",
   isAuthenticated: false,
   isBlocked: true,
 };
@@ -20,10 +20,28 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+      const user = action.payload;
+      state.user = user;
+      state.isAuthenticated = true;
+      state.isBlocked = user.isBlocked;
+      state.currentRole = user.role;
+
+      try {
+        localStorage.setItem("user", JSON.stringify(user));
+      } catch (error) {
+        console.error("Failed to store user in localStorage:", error);
+      }
     },
     clearUser: (state) => {
       state.user = null;
+      state.isAuthenticated = false;
+      state.currentRole = "user";
+
+      try {
+        localStorage.removeItem("user");
+      } catch (error) {
+        console.error("Failed to remove user from localStorage:", error);
+      }
     },
   },
 });

@@ -9,25 +9,34 @@ export interface User {
   _id: string;
   username: string;
   email: string;
-  password?: string;
   role: Role;
-  isActive: boolean;
-  isBlocked?: boolean;
+  isBlocked: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
+// export interface Task {
+//   _id: string;
+//   title: string;
+//   description: string;
+//   date: string;
+//   priority: PriorityType;
+//   stage: StageType;
+//   assigneeId: string;
+//   assignee?: User;
+//   createdBy: string;
+//   isTrashed: boolean;
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+export type TaskStatus = "pending" | "in-progress" | "completed";
 export interface Task {
   _id: string;
   title: string;
   description: string;
-  date: string;
-  priority: PriorityType;
-  stage: StageType;
-  assigneeId: string;
-  assignee?: User;
-  createdBy: string;
-  isTrashed: boolean;
+  status: TaskStatus;
+  assignedTo: string;
   createdAt: string;
   updatedAt: string;
 }

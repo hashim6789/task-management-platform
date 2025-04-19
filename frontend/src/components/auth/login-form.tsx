@@ -1,11 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { LockIcon, LogInIcon } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,10 +20,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { login } from "@/lib/auth";
-import { useAppDispatch } from "@/store/hiook";
-import { setUser } from "@/store/slices/authSlice";
-import { User } from "@/types";
+
+import { useAuth } from "@/hooks/useAuth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -37,9 +31,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const { login, isLoading } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,25 +42,7 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    try {
-      const userData: User = await login(values.email, values.password);
-      dispatch(setUser(userData));
-      if (userData.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/user/dashboard");
-      }
-      toast.success("Login successful!");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Invalid email or password");
-      } else {
-        toast.error("Invalid email or password");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    login(values.email, values.password);
   }
 
   return (

@@ -57,7 +57,6 @@ export const sampleUsers: User[] = [
     role: "admin",
     createdAt: "2023-01-01T00:00:00.000Z",
     updatedAt: "2023-01-01T00:00:00.000Z",
-    isActive: true,
     isBlocked: false,
   },
   {
@@ -68,7 +67,6 @@ export const sampleUsers: User[] = [
     createdAt: "2023-01-02T00:00:00.000Z",
     updatedAt: "2023-01-02T00:00:00.000Z",
     isBlocked: false,
-    isActive: true,
   },
   {
     _id: "3",
@@ -78,7 +76,6 @@ export const sampleUsers: User[] = [
     createdAt: "2023-01-03T00:00:00.000Z",
     updatedAt: "2023-01-03T00:00:00.000Z",
     isBlocked: false,
-    isActive: true,
   },
   {
     _id: "4",
@@ -88,7 +85,6 @@ export const sampleUsers: User[] = [
     createdAt: "2023-01-04T00:00:00.000Z",
     updatedAt: "2023-01-04T00:00:00.000Z",
     isBlocked: false,
-    isActive: true,
   },
   {
     _id: "5",
@@ -98,6 +94,53 @@ export const sampleUsers: User[] = [
     createdAt: "2023-01-05T00:00:00.000Z",
     updatedAt: "2023-01-05T00:00:00.000Z",
     isBlocked: true,
-    isActive: true,
   },
 ];
+
+// [
+//   {
+//     "_id": "507f1f77bcf86cd799439011",
+//     "username": "john_doe",
+//     "email": "john.doe@example.com",
+//     "role": "user",
+//     "isBlocked": false,
+//     "createdAt": "2025-04-18T10:00:00Z",
+//     "updatedAt": "2025-04-18T10:00:00Z"
+//   },
+//   {
+//     "_id": "507f1f77bcf86cd799439012",
+//     "username": "jane_smith",
+//     "email": "jane.smith@example.com",
+//     "role": "admin",
+//     "isBlocked": false,
+//     "createdAt": "2025-04-17T15:30:00Z",
+//     "updatedAt": "2025-04-18T09:00:00Z"
+//   },
+//   {
+//     "_id": "507f1f77bcf86cd799439013",
+//     "username": "alex_wilson",
+//     "email": "alex.wilson@example.com",
+//     "role": "user",
+//     "isBlocked": true,
+//     "createdAt": "2025-04-16T08:45:00Z",
+//     "updatedAt": "2025-04-17T12:20:00Z"
+//   },
+//   {
+//     "_id": "507f1f77bcf86cd799439014",
+//     "username": "emma_brown",
+//     "email": "emma.brown@example.com",
+//     "role": "user",
+//     "isBlocked": false,
+//     "createdAt": "2025-04-15T14:10:00Z",
+//     "updatedAt": "2025-04-15T14:10:00Z"
+//   },
+//   {
+//     "_id": "507f1f77bcf86cd799439015",
+//     "username": "mike_adams",
+//     "email": "mike.adams@example.com",
+//     "role": "admin",
+//     "isBlocked": false,
+//     "createdAt": "2025-04-14T11:25:00Z",
+//     "updatedAt": "2025-04-16T16:50:00Z"
+//   }
+// ]
