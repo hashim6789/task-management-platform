@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "@/types";
 import { RootState } from "../store";
-import axiosInstance from "@/lib/axios";
 import { AxiosError } from "axios";
+import { api } from "@/lib";
 
 interface UserManagementState {
   users: User[];
@@ -56,7 +56,7 @@ export const fetchUsers = createAsyncThunk(
         sortBy: userManagement.sortBy,
         sortOrder: userManagement.sortOrder,
       };
-      const response = await axiosInstance.get<{ data: User[]; total: number }>(
+      const response = await api.get<{ data: User[]; total: number }>(
         "/users",
         { params }
       );
@@ -87,7 +87,7 @@ export const toggleBlockUser = createAsyncThunk(
     }
 
     try {
-      const response = await axiosInstance.patch(`/users/${userId}`, {
+      const response = await api.patch(`/users/${userId}`, {
         isBlocked: !isBlocked,
       });
       return { userId, isBlocked: !isBlocked, message: response.data.message };

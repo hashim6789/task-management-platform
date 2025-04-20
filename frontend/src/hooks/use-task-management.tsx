@@ -101,7 +101,7 @@ export function useTaskManagement() {
     {
       key: "assignedTo",
       header: "Assigned To",
-      render: (task: Task) => <div>{task.assignedTo}</div>,
+      render: (task: Task) => <div>{task.assignedTo.username}</div>,
     },
     {
       key: "createdAt",

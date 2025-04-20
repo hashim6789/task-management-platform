@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import axiosInstance from "@/lib/axios";
+import { api } from "@/lib";
 import React, { useState, useEffect, useCallback } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -66,7 +66,7 @@ const UserList: React.FC = () => {
         ...(filters.status !== "all" && { status: filters.status }),
       }).toString();
 
-      const response = await axiosInstance.get<{
+      const response = await api.get<{
         users: User[];
         total: number;
       }>(`/users?${query}`);
@@ -87,7 +87,7 @@ const UserList: React.FC = () => {
   const toggleUserBlock = async (userId: string, isBlocked: boolean) => {
     try {
       const action = isBlocked ? "unblock" : "block";
-      await axiosInstance.post(`/users/${userId}/${action}`);
+      await api.post(`/users/${userId}/${action}`);
       setUsers(
         users.map((u) =>
           u._id === userId ? { ...u, isBlocked: !isBlocked } : u

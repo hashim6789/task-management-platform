@@ -8,7 +8,7 @@ const ProtectedRoute = ({ role }: { role: Role }) => {
     (state: RootState) => state.auth
   );
 
-  console.log(isAuthenticated, isBlocked, user);
+  console.log(isAuthenticated, isBlocked, user, user?.role, role);
 
   //   const currentPath = window.location.pathname;
 

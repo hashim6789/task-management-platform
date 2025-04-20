@@ -36,7 +36,7 @@ export interface Task {
   title: string;
   description: string;
   status: TaskStatus;
-  assignedTo: string;
+  assignedTo: User;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,4 +58,12 @@ export interface ThemeConfig {
 export interface ThemeOptions {
   admin: ThemeConfig;
   user: ThemeConfig;
+}
+
+export interface User {
+  _id: string;
+  username: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
 }

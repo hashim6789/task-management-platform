@@ -37,7 +37,7 @@ export const fetchTasks = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     const state = getState() as RootState;
     const { taskManagement, auth } = state;
-    if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
+    if (!auth.isAuthenticated || !auth.user) {
       return rejectWithValue("Unauthorized");
     }
 

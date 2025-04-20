@@ -30,23 +30,21 @@ const processQueue = (error: AxiosError | null) => {
     if (error) {
       reject(error);
     } else {
-      //   resolve(api(error.config as InternalAxiosRequestConfig));
       resolve(api(config));
     }
   });
   failedQueue = [];
 };
 
-// Request interceptor (no manual Authorization header since tokens are in cookies)
+// Request interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Tokens are handled by httpOnly cookies, so no need to add Authorization header
-    return config;
+    return config; // No Authorization header needed as cookies are used
   },
   (error: AxiosError) => Promise.reject(error)
 );
 
-// Response interceptor to handle 401 and token refresh
+// Response interceptor to handle token refresh and errors
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
@@ -54,7 +52,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Check if error is 401 and not already retrying
+    // Check if the error is 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         console.log("Queuing request:", originalRequest.url);
@@ -67,28 +65,47 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Request new access token using refresh token cookie
+        // Refresh token endpoint
         await api.post("/auth/refresh");
 
-        // New accessToken cookie is set by the backend via Set-Cookie
-        // Process queued requests
+        // Successfully refreshed tokens; process queued requests
         processQueue(null);
 
-        // Retry the original request with the new accessToken cookie
+        // Retry the original request
         return api(originalRequest);
       } catch (refreshError) {
-        // Handle refresh failure (e.g., invalid refresh token)
+        console.error("Token refresh failed. Logging out...");
+
+        // Log the user out via the backend logout endpoint
+        await api.post("/auth/logout");
+
+        // Redirect to login page
+        window.location.href = "/login";
+
+        // Reject queued requests with the error
         processQueue(refreshError as AxiosError);
-        // Optionally redirect to login
-        // window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // For non-401 errors or after retry, reject the error
-    return Promise.reject(error);
+    // Handle non-401 errors
+    if (error.response?.status === 403) {
+      const errorData = error.response.data as { message: string }; // Replace with actual type
+      console.error("Access Forbidden:", errorData.message);
+      return Promise.reject(new Error("Forbidden: Access denied."));
+    }
+
+    if (error.response?.status === 500) {
+      const errorData = error.response.data as { message: string }; // Replace with actual type
+      console.error("Internal Server Error:", errorData.message);
+      return Promise.reject(
+        new Error("Something went wrong. Please try again.")
+      );
+    }
+
+    return Promise.reject(error); // Reject all other errors
   }
 );
 
