@@ -7,68 +7,50 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTaskManagement } from "@/hooks/use-task-management";
-import { JSX } from "react";
 
 interface TaskTableProps {
   tasks: Task[];
   columns: Array<{
     key: string;
     header: string;
-    render: (task: Task) => JSX.Element;
+    render: (task?: Task) => JSX.Element;
   }>;
 }
 
 export function TaskTable({ tasks, columns }: TaskTableProps) {
-  const { setSort, sortBy, sortOrder } = useTaskManagement();
-
-  const handleSort = (key: string) => {
-    if (key === "status" || key === "assignedTo") return; // Skip sorting for status and assignedTo
-    const newSortOrder = sortBy === key && sortOrder === "asc" ? "desc" : "asc";
-    setSort(key as keyof Task, newSortOrder);
-  };
+  // Filter out undefined or null tasks
+  const validTasks = tasks.filter(
+    (task): task is Task =>
+      task !== undefined &&
+      task !== null &&
+      typeof task._id === "string" &&
+      typeof task.title === "string"
+  );
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
           {columns.map((column) => (
-            <TableHead
-              key={column.key}
-              className={
-                column.key === "title" ||
-                column.key === "createdAt" ||
-                column.key === "updatedAt"
-                  ? "cursor-pointer"
-                  : ""
-              }
-              onClick={() => handleSort(column.key)}
-            >
-              {column.header}
-              {sortBy === column.key && (
-                <span>{sortOrder === "asc" ? " ↑" : " ↓"}</span>
-              )}
-            </TableHead>
+            <TableHead key={column.key}>{column.header}</TableHead>
           ))}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tasks.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="text-center">
-              No tasks found
-            </TableCell>
-          </TableRow>
-        ) : (
-          tasks.map((task) => (
+        {validTasks.length > 0 ? (
+          validTasks.map((task) => (
             <TableRow key={task._id}>
               {columns.map((column) => (
-                <TableCell key={`${task._id}-${column.key}`}>
-                  {column.render(task)}
-                </TableCell>
+                <TableCell key={column.key}>{column.render(task)}</TableCell>
               ))}
             </TableRow>
           ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="text-center">
+              No tasks available
+            </TableCell>
+          </TableRow>
         )}
       </TableBody>
     </Table>

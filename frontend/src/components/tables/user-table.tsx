@@ -7,8 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useUserManagement } from "@/hooks/use-user-management";
 import { JSX } from "react";
+import { useUserManagement } from "@/hooks/use-user-management";
 
 interface UserTableProps {
   users: User[];

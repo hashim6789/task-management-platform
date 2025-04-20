@@ -1,7 +1,8 @@
 export const TASK_MESSAGE = {
-  createSuccess: "Task created successfully",
-  updateSuccess: "Task updated successfully",
-  createFailed: "Failed to create Task",
-  unauthorizedDesc: "Only admins can update task status",
-  updateFailed: "Failed to update Task status",
+  createSuccess: "Task created successfully.",
+  createFailed: "Failed to create task.",
+  updateSuccess: "Task status updated successfully.",
+  updateFailed: "Failed to update task status.",
+  assignSuccess: "Task assigned successfully.",
+  assignFailed: "Failed to assign task.",
 };

@@ -13,7 +13,6 @@ interface TaskFiltersProps {
   statusFilter: TaskStatus | "all";
   setSearch: (value: string) => void;
   setStatusFilter: (value: TaskStatus | "all") => void;
-  // users: Array<{ _id: string; username: string }>;
 }
 
 export function TaskFilters({
@@ -21,12 +20,11 @@ export function TaskFilters({
   statusFilter,
   setSearch,
   setStatusFilter,
-}: // users,
-TaskFiltersProps) {
+}: TaskFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-4">
+    <div className="flex flex-col sm:flex-row gap-4">
       <Input
-        placeholder="Search by title or description"
+        placeholder="Search tasks..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="max-w-sm"
@@ -36,25 +34,12 @@ TaskFiltersProps) {
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Statuses</SelectItem>
+          <SelectItem value="all">All</SelectItem>
           <SelectItem value="todo">Todo</SelectItem>
           <SelectItem value="in-progress">In Progress</SelectItem>
           <SelectItem value="completed">Completed</SelectItem>
         </SelectContent>
       </Select>
-      {/* <Select value={assignedToFilter} onValueChange={setAssignedToFilter}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by assigned to" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Users</SelectItem>
-          {users.map((user) => (
-            <SelectItem key={user._id} value={user._id}>
-              {user.username}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select> */}
     </div>
   );
 }

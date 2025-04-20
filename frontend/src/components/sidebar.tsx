@@ -26,6 +26,12 @@ const menuItems = (role: Role) => [
     icon: "📋",
     roles: ["user", "admin"],
   },
+  {
+    name: "Management",
+    path: `/${role}/management`,
+    icon: "📋",
+    roles: ["user", "admin"],
+  },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {

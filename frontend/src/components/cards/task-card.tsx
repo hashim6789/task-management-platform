@@ -1,12 +1,7 @@
-import { Task, TaskStatus } from "@/types";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { format } from "date-fns";
+import { memo } from "react";
+import { Task, TaskStatus, STATUS_ORDER, User } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format, isValid } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -18,51 +13,86 @@ import {
 interface TaskCardProps {
   task: Task;
   onUpdateStatus: (taskId: string, status: TaskStatus) => void;
+  onAssignUser: (taskId: string, userId: string | null) => void;
   isAdmin: boolean;
+  users: User[];
 }
 
-export function TaskCard({ task, onUpdateStatus, isAdmin }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({
+  task,
+  onUpdateStatus,
+  onAssignUser,
+  isAdmin,
+  users,
+}: TaskCardProps) {
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
-        <CardTitle>{task.title}</CardTitle>
+        <CardTitle className="text-lg">{task.title || "N/A"}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <p>
-          <strong>Description:</strong> {task.description}
+      <CardContent className="space-y-2">
+        <p className="text-sm text-gray-600">{task.description || "N/A"}</p>
+        <p className="text-sm">
+          <span className="font-medium">Due:</span>{" "}
+          {dueDate && isValid(dueDate) ? format(dueDate, "PPP") : "N/A"}
         </p>
-        <p>
-          <strong>Status:</strong> {task.status}
-        </p>
-        <p>
-          <strong>Assigned To:</strong> {task.assignedTo}
-        </p>
-        <p>
-          <strong>Created:</strong> {format(new Date(task.createdAt), "PP")}
-        </p>
-        <p>
-          <strong>Updated:</strong> {format(new Date(task.updatedAt), "PP")}
-        </p>
-      </CardContent>
-      {isAdmin && (
-        <CardFooter>
+        <div className="text-sm">
+          <span className="font-medium">Status:</span>{" "}
           <Select
             value={task.status}
             onValueChange={(value: TaskStatus) =>
               onUpdateStatus(task._id, value)
             }
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] inline-flex">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todo">Todo</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              {STATUS_ORDER.map((status) => (
+                <SelectItem
+                  key={status}
+                  value={status}
+                  disabled={
+                    !isAdmin &&
+                    STATUS_ORDER.indexOf(status) <=
+                      STATUS_ORDER.indexOf(task.status)
+                  }
+                >
+                  {status.charAt(0).toUpperCase() +
+                    status.slice(1).replace("-", " ")}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-        </CardFooter>
-      )}
+        </div>
+        <div className="text-sm">
+          <span className="font-medium">Assigned To:</span>{" "}
+          {isAdmin ? (
+            <Select
+              value={task.assignedTo?._id ?? "unassigned"}
+              onValueChange={(userId: string) =>
+                onAssignUser(task._id, userId === "unassigned" ? null : userId)
+              }
+            >
+              <SelectTrigger className="w-[140px] inline-flex">
+                <SelectValue placeholder="Select user" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user._id} value={user._id}>
+                    {user.username}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <span>{task.assignedTo?.username || "Unassigned"}</span>
+          )}
+        </div>
+      </CardContent>
     </Card>
   );
-}
+});

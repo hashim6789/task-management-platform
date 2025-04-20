@@ -15,6 +15,7 @@ export const UserRoutes = () => [
             children: [
               { path: "dashboard", element: <Dashboard /> },
               { path: "tasks", element: <TasksPage role="user" /> },
+              { path: "management", element: <TasksPage role="user" /> },
             ],
           },
         ],

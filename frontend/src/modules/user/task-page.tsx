@@ -1,20 +1,15 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useTaskManagement } from "@/hooks/use-task-management";
-// import { fetchTasks } from "@/store/slices/taskSlice";
 import { useAppDispatch } from "@/store/hiook";
 import { RootState } from "@/store/store";
-// import { fetchUsers } from "@/store/slices/userManagentSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
 import { TaskTable } from "@/components/tables/task-table";
 import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
-// import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { Role } from "@/types";
 import { fetchTasks } from "@/store/slices/taskSlice";
 
@@ -23,14 +18,10 @@ interface TasksPageProps {
 }
 
 const TasksPage: React.FC<TasksPageProps> = () => {
-  //   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const {
-    isAuthenticated,
-    loading: authLoading,
-    // error: authError,
-  } = useSelector((state: RootState) => state.auth);
-  //   const { users } = useSelector((state: RootState) => state.userManagement);
+  const { isAuthenticated, loading: authLoading } = useSelector(
+    (state: RootState) => state.auth
+  );
   const {
     tasks,
     total,

@@ -1,26 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { useTaskManagement } from "@/hooks/use-task-management";
 import { useAppDispatch } from "@/store/hiook";
 import { RootState } from "@/store/store";
-import { fetchTasks } from "@/store/slices/taskSlice";
+import {
+  assignTask,
+  fetchTasks,
+  updateTaskStatus,
+} from "@/store/slices/taskSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
 import { TaskTable } from "@/components/tables/task-table";
 import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
+import { ErrorBoundary } from "@/components/common/error-boundary";
 import { Role } from "@/types";
+import { fetchUsers } from "@/store/slices/userManagentSlice";
+import { useTaskManagement } from "@/hooks/use-task-management";
 
-interface TasksPageProps {
+interface TaskManagementProps {
   role: Role;
 }
 
-export function TasksPage({ role }: TasksPageProps) {
+export function TaskManagement({ role }: TaskManagementProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const {
@@ -28,6 +34,7 @@ export function TasksPage({ role }: TasksPageProps) {
     loading: authLoading,
     error: authError,
   } = useSelector((state: RootState) => state.auth);
+  const { users } = useSelector((state: RootState) => state.userManagement);
   const {
     tasks,
     total,
@@ -44,17 +51,24 @@ export function TasksPage({ role }: TasksPageProps) {
     setPage,
     setLimit,
     setViewMode,
-    updateTaskStatus,
     clearError,
     isAdmin,
   } = useTaskManagement();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Memoize tasks to prevent unnecessary re-renders
+  const stableTasks = useMemo(() => tasks.filter((task) => task._id), [tasks]);
+
+  console.log("Tasks in TaskManagement:", stableTasks);
+
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchTasks());
+      if (isAdmin) {
+        dispatch(fetchUsers());
+      }
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, isAdmin]);
 
   useEffect(() => {
     if (error) {
@@ -127,15 +141,23 @@ export function TasksPage({ role }: TasksPageProps) {
       )}
 
       {viewMode === "list" ? (
-        <TaskTable tasks={tasks} columns={columns} />
+        <ErrorBoundary>
+          <TaskTable tasks={stableTasks} columns={columns} />
+        </ErrorBoundary>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {tasks.map((task) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {stableTasks.map((task) => (
             <TaskCard
               key={task._id}
               task={task}
-              onUpdateStatus={updateTaskStatus}
+              onUpdateStatus={async (taskId, status) => {
+                await updateTaskStatus({ taskId, status });
+              }}
+              onAssignUser={async (taskId, userId) => {
+                if (userId) await dispatch(assignTask({ taskId, userId }));
+              }}
               isAdmin={isAdmin}
+              users={users}
             />
           ))}
         </div>
