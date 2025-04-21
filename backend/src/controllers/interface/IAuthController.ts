@@ -11,5 +11,5 @@ export interface IAuthController {
     res: Response,
     next: NextFunction
   ): Promise<void>;
-  // me(req: Request, res: Response, next: NextFunction): Promise<void>;
+  me(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

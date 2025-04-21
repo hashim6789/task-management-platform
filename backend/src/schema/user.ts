@@ -17,3 +17,11 @@ export const createUserSchema = z
   .strict();
 
 export type CreateUserRequestDTO = z.infer<typeof createUserSchema>;
+
+export const blockUserSchema = z
+  .object({
+    isBlocked: z.boolean(),
+  })
+  .strict();
+
+export type BlockUserRequestDTO = z.infer<typeof blockUserSchema>;

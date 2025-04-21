@@ -2,43 +2,66 @@ import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "@/utils/jwt.util";
 import { HttpResponse } from "@/constants/response-message.constant";
 import { HttpStatus } from "@/constants/status.constant";
-import { createHttpError } from "@/utils/http-error.util";
+import { createHttpError, HttpError } from "@/utils/http-error.util";
+import { Role } from "@/types";
 
 export default function (
-  userLevel: "user" | "admin" | "moderator"
+  allowedRoles: Role[]
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      const authHeader = req.headers.authorization;
+      const { accessToken, refreshToken } = req.cookies;
 
-      if (!authHeader || !authHeader.startsWith("Bearer")) {
-        throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN)
+      if (!accessToken || !refreshToken) {
+        throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN);
       }
 
-      const token = authHeader.split(" ")[1];
-      if (!token) {
-        throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN)
-      }
-
-      const payload = verifyAccessToken(token) as {
+      const payload = verifyAccessToken(accessToken) as {
         id: string;
         email: string;
-        role: "user" | "admin" | "moderator";
+        role: "user" | "admin";
       };
 
-      if (payload.role !== userLevel) {
-        throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED)
+      if (!allowedRoles.includes(payload.role)) {
+        throw createHttpError(
+          HttpStatus.FORBIDDEN,
+          HttpResponse.NO_ACCESS_RESOURCE
+        );
       }
 
       req.headers["x-user-payload"] = JSON.stringify(payload);
       next();
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (err.name === "TokenExpiredError") {
-        throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.TOKEN_EXPIRED)
+    } catch (err: unknown) {
+      console.error({ message: "Error in auth middleware", error: err });
+
+      if (
+        err instanceof HttpError &&
+        err.statusCode === HttpStatus.UNAUTHORIZED
+      ) {
+        // Authentication error (e.g., missing or expired token)
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          message: err.message,
+        });
+      } else if (err instanceof Error && err.name === "TokenExpiredError") {
+        // Authentication error (expired token specifically)
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          message: HttpResponse.TOKEN_EXPIRED,
+        });
+      } else if (
+        err instanceof HttpError &&
+        err.statusCode === HttpStatus.FORBIDDEN
+      ) {
+        // Authorization error
+        res.status(HttpStatus.FORBIDDEN).json({
+          message: err.message,
+        });
       } else {
-        throw createHttpError(HttpStatus.FORBIDDEN, HttpResponse.TOKEN_EXPIRED)
+        // Fallback for unexpected errors
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          message: "An unexpected error occurred.",
+        });
       }
     }
   };

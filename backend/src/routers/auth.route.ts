@@ -9,6 +9,7 @@ import { IAuthController } from "@/controllers/interface";
 import { AuthController } from "@/controllers/implementation/auth.controller";
 import { validate } from "@/middlewares";
 import { loginSchema } from "@/schema";
+import verifyTokenMiddleware from "@/middlewares/verify-token.middleware";
 
 const authRouter = Router();
 
@@ -21,11 +22,11 @@ authRouter.post(
   authController.refreshAccessToken.bind(authController)
 );
 
-// authRouter.get(
-//   "/me",
-//   verifyToken('user'),
-//   authController.me.bind(authController)
-// );
+authRouter.get(
+  "/me",
+  verifyTokenMiddleware(["admin", "user"]),
+  authController.me.bind(authController)
+);
 
 authRouter.post(
   "/login",

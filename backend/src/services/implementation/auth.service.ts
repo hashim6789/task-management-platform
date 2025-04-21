@@ -21,7 +21,6 @@ export class AuthService implements IAuthService {
   ): Promise<{ accessToken: string; refreshToken: string; user: IUser }> {
     const user =
       await this._userRepository.findOneWithUsernameOrEmail(identifier);
-    console.log(user);
 
     if (!user) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
@@ -66,13 +65,13 @@ export class AuthService implements IAuthService {
     return { accessToken, refreshToken };
   }
 
-  // async getUser(userId: string): Promise<IUserModel> {
-  //     const user = await this._userRepository.findUserById(userId)
+  async getUserById(userId: string): Promise<IUser> {
+    const user = await this._userRepository.findUserById(userId);
 
-  //     if (!user) {
-  //         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND)
-  //     }
+    if (!user) {
+      throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+    }
 
-  //     return user
-  // }
+    return user;
+  }
 }

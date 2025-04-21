@@ -1,15 +1,33 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 export const env = {
   get PORT() {
     return process.env.PORT;
+  },
+  get SMTP_HOST() {
+    return process.env.SMTP_HOST;
+  },
+  get SMTP_PORT() {
+    return parseInt(process.env.SMTP_PORT || "587", 10);
+  },
+  get SMTP_SECURE() {
+    return process.env.SMTP_SECURE;
   },
   get MONGO_URI() {
     return process.env.MONGO_URI;
   },
   get JWT_ACCESS_SECRET() {
-    return process.env.JWT_ACCESS_SECRET || "access";
+    return process.env.JWT_ACCESS_SECRET;
   },
   get JWT_REFRESH_SECRET() {
-    return process.env.JWT_REFRESH_SECRET || "refresh";
+    return process.env.JWT_REFRESH_SECRET;
+  },
+  get ACCESS_TOKEN_EXPIRY() {
+    return process.env.ACCESS_TOKEN_EXPIRY;
+  },
+  get REFRESH_TOKEN_EXPIRY() {
+    return process.env.REFRESH_TOKEN_EXPIRY;
   },
   get REDIS_URL() {
     return process.env.REDIS_URL;

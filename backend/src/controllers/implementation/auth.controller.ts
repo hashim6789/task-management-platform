@@ -15,7 +15,6 @@ export class AuthController implements IAuthController {
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, username, password } = req.body;
-      console.log(req.body);
 
       const { accessToken, refreshToken, user } = await this._authService.login(
         email || username,
@@ -64,14 +63,14 @@ export class AuthController implements IAuthController {
     }
   }
 
-  // async me(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //     try {
-  //         const {id} = JSON.parse(req.headers["x-user-payload"] as string)
-  //         const user = await this._authService.getUser(id)
+  async me(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = JSON.parse(req.headers["x-user-payload"] as string);
+      const user = await this._authService.getUserById(id);
 
-  //         res.status(HttpStatus.OK).json(user)
-  //     } catch (error) {
-  //         next(error)
-  //     }
-  // }
+      res.status(HttpStatus.OK).json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

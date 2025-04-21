@@ -1,10 +1,11 @@
 import { IUser } from "@/models";
-import { CreateUserRequestDTO } from "@/schema/user";
+import { CreateUserDTO, PaginatedData, UserQuery } from "@/types";
 
 export interface IUserRepository {
   findByEmail(email: string): Promise<IUser | null>;
+  findAllByQuery(query: UserQuery): Promise<PaginatedData<IUser>>;
 
-  create(user: CreateUserRequestDTO): Promise<IUser>;
+  create(user: CreateUserDTO): Promise<IUser>;
 
   //   findByUsername(username: string): Promise<IUserModel | null>
 
@@ -12,8 +13,9 @@ export interface IUserRepository {
 
   //   findByUsername(username: string): Promise<IUserModel | null>;
 
-  //   findUserById(id: string): Promise<IUserModel | null>;
+  findUserById(id: string): Promise<IUser | null>;
 
+  updateUser(id: string, data: Partial<IUser>): Promise<IUser | null>;
   //   updatePassword(email: string, hashedPassword: string): Promise<IUserModel | null>;
 
   //   updateUsername(id: string, username: string): Promise<IUserModel | null>;

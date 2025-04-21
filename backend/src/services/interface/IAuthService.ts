@@ -18,5 +18,5 @@ export interface IAuthService {
     token: string
   ): Promise<{ accessToken: string; refreshToken: string }>;
 
-  // getUser(userId: string): Promise<IUserModel>;
+  getUserById(userId: string): Promise<IUser>;
 }

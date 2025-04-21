@@ -1,5 +1,5 @@
 export { validateEnv } from "./validate-env.util";
-export { sendOtpEmail, sendResetPasswordEmail } from "./send-email.util";
+export { sendResetPasswordEmail } from "./send-email.util";
 export {
   generateAccessToken,
   generateRefreshToken,
@@ -11,5 +11,9 @@ export { generateOTP } from "./generate-otp.util";
 export { hashPassword, comparePassword } from "./bcrypt.util";
 export { checkEmailExistence } from "./email-verification.utils";
 export { toObjectId } from "./convert-object-id.utils";
-// export { generateUniqueUsername } from "./generate-uniq-username";
+export {
+  generateUniqueUsername,
+  generateRandomPassword,
+} from "./generate-uniq-username";
+export * from "./socket.util";
 // export { uploadToCloudinary, generateSignedUrl } from "./cloudinary.util";
