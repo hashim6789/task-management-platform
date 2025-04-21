@@ -5,7 +5,7 @@ import axios, {
   AxiosResponse,
 } from "axios";
 
-const axiosInstance: AxiosInstance = axios.create({
+export const axiosInstance: AxiosInstance = axios.create({
   baseURL: "http://localhost:5000/api", // Replace with your backend API base URL
   timeout: 5000,
   headers: {
@@ -34,5 +34,3 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => Promise.reject(error)
 );
-
-export default axiosInstance;

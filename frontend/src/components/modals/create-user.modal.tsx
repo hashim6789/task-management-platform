@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib";
-import { addUser } from "@/store/slices/userManagentSlice";
+import { addUser } from "@/store/slices/userManagementSlice";
 import { TOAST_MESSAGES, USER_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
 

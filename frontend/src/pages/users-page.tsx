@@ -6,14 +6,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useUserManagement } from "@/hooks/use-user-management";
-import { fetchUsers } from "@/store/slices/userManagentSlice";
 import { UserFilters } from "@/components/filters/user-filter";
 import { UserTable } from "@/components/tables/user-table";
 import { UserCard } from "@/components/cards/user-card";
 import { PaginationControls } from "@/components/common/pagination";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
 import { CreateUserModal } from "@/components/modals/create-user.modal";
+import { fetchUsers } from "@/store/thunks";
 
 export function UsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);

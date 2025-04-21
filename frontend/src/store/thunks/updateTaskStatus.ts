@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { RootState } from "../store";
+import { RootState } from "..";
 import { api } from "@/lib";
 import { STATUS_ORDER, Task, TaskStatus } from "@/types";
 import { AxiosError } from "axios";

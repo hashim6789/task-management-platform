@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { RootState } from "../store";
+import { RootState } from "..";
 import { api } from "@/lib";
 import { Task } from "@/types";
 import { isValid } from "date-fns";

@@ -1,12 +1,14 @@
-import axiosInstance from "@/lib/axios";
 import { useAppDispatch } from "@/store/hiook";
 import { clearUser, setUser } from "@/store/slices/authSlice";
-import { RootState } from "@/store/store";
-import { User } from "@/types";
-import { useCallback, useState } from "react";
+import { RootState } from "@/store";
+import { ClientToServerEvents, ServerToClientEvents, User } from "@/types";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { axiosInstance } from "@/lib";
+import { Socket } from "socket.io-client";
+import { disconnectSocket, initializeSocket } from "@/lib/socket";
 
 interface AuthState {
   user: User | null;
@@ -16,10 +18,27 @@ interface AuthState {
 }
 
 export const useAuth = (): AuthState => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Initialize and connect Socket.IO
+      const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+        initializeSocket(user._id, dispatch);
+      socket.connect();
+
+      // Cleanup on unmount
+      return () => {
+        console.debug("Cleaning up TaskManagement");
+        disconnectSocket();
+      };
+    }
+  }, [dispatch, isAuthenticated, user]);
 
   const login = useCallback(async (email: string, password: string) => {
     try {

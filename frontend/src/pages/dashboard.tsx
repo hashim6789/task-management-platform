@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import axiosInstance from "@/lib/axios";
+import { api } from "@/lib";
 import { sampleTasks, sampleUsers } from "@/samples";
 import { Task } from "@/types";
 import React, { useState, useEffect } from "react";
@@ -17,7 +17,7 @@ interface User {
   updatedAt: string;
 }
 
-const AdminDashboard: React.FC = () => {
+export const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   // const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
@@ -59,7 +59,7 @@ const AdminDashboard: React.FC = () => {
   const toggleUserBlock = async (userId: string, isBlocked: boolean) => {
     try {
       const action = isBlocked ? "unblock" : "block";
-      await axiosInstance.post(`/users/${userId}/${action}`);
+      await api.post(`/users/${userId}/${action}`);
       setUsers(
         users.map((u) =>
           u._id === userId ? { ...u, isBlocked: !isBlocked } : u
@@ -77,7 +77,7 @@ const AdminDashboard: React.FC = () => {
   // Calculate task metrics
   const taskMetrics = {
     total: tasks.length,
-    pending: tasks.filter((t) => t.status === "pending").length,
+    pending: tasks.filter((t) => t.status === "todo").length,
     inProgress: tasks.filter((t) => t.status === "in-progress").length,
     completed: tasks.filter((t) => t.status === "completed").length,
   };
@@ -216,5 +216,3 @@ const AdminDashboard: React.FC = () => {
     </div>
   );
 };
-
-export default AdminDashboard;

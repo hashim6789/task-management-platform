@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 import { Provider } from "react-redux";
-import { store } from "./store/store";
+import { store } from "./store";
 import { Toaster } from "sonner";
 
 export default function App() {

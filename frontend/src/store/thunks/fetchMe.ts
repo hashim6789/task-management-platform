@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios";
+import { axiosInstance } from "@/lib";
 import { User } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";

@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useTaskManagement } from "@/hooks/use-task-management";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { setIsManagement } from "@/store/slices/taskSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
 import { TaskTable } from "@/components/tables/task-table";
@@ -14,32 +14,14 @@ import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { ErrorBoundary } from "@/components/common/error-boundary";
-import { Role, Task } from "@/types";
-import { initializeSocket, disconnectSocket } from "@/lib/socket";
-import type { Socket } from "socket.io-client";
+// import { ClientToServerEvents, Role, ServerToClientEvents } from "@/types";
+// import { initializeSocket, disconnectSocket } from "@/lib/socket";
+// import type { Socket } from "socket.io-client";
 import { useAppDispatch } from "@/store/hiook";
-import { fetchUsers } from "@/store/slices/userManagentSlice";
 import { fetchTasks } from "@/store/thunks/fetchTask";
 import { assignTask } from "@/store/thunks/assignTask";
-
-interface ServerToClientEvents {
-  "task:created": (task: Task) => void;
-  "task:updated": (task: Task) => void;
-  "task:assigned": (task: Task) => void;
-  connect: () => void;
-  connect_error: (error: Error) => void;
-  disconnect: () => void;
-}
-
-interface ClientToServerEvents {
-  login: (
-    userId: string,
-    callback: (success: boolean, message?: string) => void
-  ) => void;
-  "task:created": (task: Task) => void;
-  "task:updated": (task: Task) => void;
-  "task:assigned": (task: Task) => void;
-}
+import { fetchUsers } from "@/store/thunks";
+import { Role } from "@/types";
 
 interface TaskManagementProps {
   role: Role;
@@ -98,16 +80,16 @@ export function TaskManagement({ role }: TaskManagementProps) {
         dispatch(fetchUsers());
       }
 
-      // Initialize and connect Socket.IO
-      const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-        initializeSocket(user._id, dispatch);
-      socket.connect();
+      // // Initialize and connect Socket.IO
+      // const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+      //   initializeSocket(user._id, dispatch);
+      // socket.connect();
 
-      // Cleanup on unmount
-      return () => {
-        console.debug("Cleaning up TaskManagement");
-        disconnectSocket();
-      };
+      // // Cleanup on unmount
+      // return () => {
+      //   console.debug("Cleaning up TaskManagement");
+      //   disconnectSocket();
+      // };
     }
   }, [dispatch, isAuthenticated, isAdmin, user]);
 

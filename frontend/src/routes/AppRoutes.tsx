@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 // import LoginPage from "../modules/auth/pages/Login";
 import { AdminRoutes } from "./AdminRoutes";
 import { UserRoutes } from "./UserRoutes";
-import { RootState } from "../store/store";
+import { RootState } from "../store";
 import { LoginForm } from "../components/auth/login-form";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hiook";

@@ -1,8 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { User } from "@/types";
-import { RootState } from "../store";
-import { AxiosError } from "axios";
-import { api } from "@/lib";
+import { fetchUsers, toggleBlockUser } from "../thunks";
 
 interface UserManagementState {
   users: User[];
@@ -31,77 +29,6 @@ const initialState: UserManagementState = {
   loading: false,
   error: null,
 };
-
-export const fetchUsers = createAsyncThunk(
-  "userManagement/fetchUsers",
-  async (_, { getState, rejectWithValue }) => {
-    const state = getState() as RootState;
-    const { userManagement, auth } = state;
-    if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
-      return rejectWithValue("Unauthorized");
-    }
-
-    try {
-      const params = {
-        page: userManagement.page,
-        limit: userManagement.limit,
-        search: userManagement.search || undefined,
-
-        isBlocked:
-          userManagement.statusFilter === "active"
-            ? false
-            : userManagement.statusFilter === "blocked"
-            ? true
-            : undefined,
-        sortBy: userManagement.sortBy,
-        sortOrder: userManagement.sortOrder,
-      };
-      const response = await api.get<{ data: User[]; total: number }>(
-        "/users",
-        { params }
-      );
-      // return { data: sampleUsers, total: 20 };
-      return response.data;
-    } catch (error: unknown) {
-      let errorMessage = "Failed to fetch users";
-
-      if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
-      }
-
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-export const toggleBlockUser = createAsyncThunk(
-  "userManagement/toggleBlockUser",
-  async (
-    { userId, isBlocked }: { userId: string; isBlocked: boolean },
-    { getState, rejectWithValue }
-  ) => {
-    const state = getState() as RootState;
-    const { auth } = state;
-    if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
-      return rejectWithValue("Unauthorized");
-    }
-
-    try {
-      const response = await api.patch(`/users/${userId}`, {
-        isBlocked: !isBlocked,
-      });
-      return { userId, isBlocked: !isBlocked, message: response.data.message };
-    } catch (error: unknown) {
-      let errorMessage = "Failed to update user status";
-
-      if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
-      }
-
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
 
 const userManagementSlice = createSlice({
   name: "userManagement",

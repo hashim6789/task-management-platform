@@ -1,19 +1,25 @@
+import { ThemeType } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface ThemeState {
-  mode: "light" | "dark";
+interface LayoutState {
+  mode: ThemeType;
+  isSidebarOpen: boolean;
 }
 
-const initialState: ThemeState = {
+const initialState: LayoutState = {
   mode: "light",
+  isSidebarOpen: true,
 };
 
 const themeSlice = createSlice({
   name: "theme",
   initialState,
   reducers: {
-    setTheme(state, action: PayloadAction<"light" | "dark">) {
+    setTheme(state, action: PayloadAction<ThemeType>) {
       state.mode = action.payload;
+    },
+    setSidebarOpen(state, action: PayloadAction<boolean>) {
+      state.isSidebarOpen = action.payload;
     },
   },
 });

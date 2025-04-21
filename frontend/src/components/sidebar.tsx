@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { Role } from "@/types";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -34,7 +34,7 @@ const menuItems = (role: Role) => [
   },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const roleName = user && user.role === "admin" ? "Admin" : "User";
 
@@ -70,18 +70,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen }) => {
             ))}
         </nav>
       </ScrollArea>
-
-      {/* Sidebar Footer */}
-      {/* <div className="p-4 border-t">
-        <button
-          className="w-full px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors"
-          onClick={() => console.log("Create New Task")}
-        >
-          ➕ Create New Task
-        </button>
-      </div> */}
     </aside>
   );
 };
-
-export default Sidebar;

@@ -3,8 +3,6 @@ import { useSelector } from "react-redux";
 import { User } from "@/types";
 import { format } from "date-fns";
 import {
-  // fetchUsers,
-  toggleBlockUser,
   setSearch,
   setStatusFilter,
   setSort,
@@ -12,13 +10,14 @@ import {
   setLimit,
   setViewMode,
   clearError,
-} from "@/store/slices/userManagentSlice";
+} from "@/store/slices/userManagementSlice";
 import { Button } from "@/components/ui/button";
 import { useToast } from "./use-toast";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
 import { AxiosError } from "axios";
 import { TOAST_MESSAGES, USER_MESSAGE } from "@/constants";
+import { toggleBlockUser } from "@/store/thunks";
 
 export function useUserManagement() {
   const { toast } = useToast();

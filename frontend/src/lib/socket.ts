@@ -1,7 +1,7 @@
 import io from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import { Task } from "@/types";
-import { AppDispatch } from "@/store/store";
+import { AppDispatch } from "@/store";
 import { updateTask } from "@/store/slices/taskSlice";
 
 // Define server-to-client events

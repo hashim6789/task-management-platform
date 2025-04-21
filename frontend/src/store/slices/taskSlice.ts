@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Task, TaskStatus } from "@/types";
-
-import { fetchTasks } from "../thunks/fetchTask";
-import { createTask } from "../thunks/createTask";
-import { updateTaskStatus } from "../thunks/updateTaskStatus";
-import { assignTask } from "../thunks/assignTask";
+import {
+  assignTask,
+  createTask,
+  fetchTasks,
+  updateTaskStatus,
+} from "../thunks";
 
 interface TaskManagementState {
   tasks: Task[];

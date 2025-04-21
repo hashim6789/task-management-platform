@@ -1,8 +1,6 @@
-import Layout from "@/modules/user/layout";
 import ProtectedRoute from "./ProtectedRoute";
-import Dashboard from "@/modules/user/dashboard";
-import { TasksPage } from "@/pages/tasks-page";
-import { TaskManagement } from "@/modules/user/task-management";
+import Dashboard from "@/pages/dashboardA";
+import { Layout, TaskManagement, TasksPage } from "@/pages";
 
 export const UserRoutes = () => [
   {

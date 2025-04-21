@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
 import { Task, TaskStatus, STATUS_ORDER } from "@/types";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
 import { useToast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";

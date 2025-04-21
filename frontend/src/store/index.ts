@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "./slices/authSlice";
-import { userManagementReducer } from "./slices/userManagentSlice";
+import { userManagementReducer } from "./slices/userManagementSlice";
 import { taskManagementReducer } from "./slices/taskSlice";
 import { themeReducer } from "./slices/themeSlice";
 

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RootState } from "@/store/store";
+import { RootState } from "@/store";
 import { setTheme } from "@/store/slices/themeSlice";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,7 +17,7 @@ interface NavbarProps {
   toggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
+export const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.mode);
   const { logout } = useAuth();
@@ -80,5 +80,3 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
     </nav>
   );
 };
-
-export default Navbar;

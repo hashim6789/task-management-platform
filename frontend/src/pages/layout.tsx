@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { cn } from "@/lib/utils";
-import { RootState } from "@/store/store";
-import Navbar from "@/components/navbar";
-import Sidebar from "@/components/sidebar";
-import Footer from "@/components/footer";
+import { RootState } from "@/store";
 import { useState } from "react";
+import { Footer, Navbar, Sidebar } from "@/components";
 
-const Layout: React.FC = () => {
+export const Layout: React.FC = () => {
   const theme = useSelector((state: RootState) => state.theme.mode);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -34,5 +32,3 @@ const Layout: React.FC = () => {
     </div>
   );
 };
-
-export default Layout;

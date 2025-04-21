@@ -1,10 +1,11 @@
+import {
+  AdminDashboard,
+  Layout,
+  TaskManagement,
+  TasksPage,
+  UsersPage,
+} from "@/pages";
 import ProtectedRoute from "./ProtectedRoute";
-import AdminDashboard from "@/modules/admin/dashboard";
-import { UsersPage } from "@/pages/users-page";
-import Layout from "@/modules/user/layout";
-// import TaskManagement from "@/modules/user/task-management";
-import { TasksPage } from "@/pages/tasks-page";
-import { TaskManagement } from "@/modules/user/task-management";
 
 export const AdminRoutes = () => [
   {
