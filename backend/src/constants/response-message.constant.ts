@@ -36,4 +36,5 @@ export const HttpResponse = {
   NO_ACCESS_RESOURCE: "You have no access!",
   INVALID_REFRESH_TOKEN: "Invalid refresh token!",
   TASK_NOT_FOUND: "The task not found!",
+  USER_BLOCKED: "The User blocked!",
 };

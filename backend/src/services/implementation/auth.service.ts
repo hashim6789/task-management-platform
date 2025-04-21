@@ -25,15 +25,18 @@ export class AuthService implements IAuthService {
     if (!user) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
     }
+    if (user.isBlocked) {
+      throw createHttpError(HttpStatus.FORBIDDEN, HttpResponse.USER_BLOCKED);
+    }
 
-    // const isMatch = await comparePassword(password, user.password as string);
+    const isMatch = await comparePassword(password, user.password);
 
-    // if (!isMatch) {
-    //   throw createHttpError(
-    //     HttpStatus.BAD_REQUEST,
-    //     HttpResponse.PASSWORD_INCORRECT
-    //   );
-    // }
+    if (!isMatch) {
+      throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        HttpResponse.PASSWORD_INCORRECT
+      );
+    }
 
     const payload = { id: user._id, role: user.role, email: user.email };
 

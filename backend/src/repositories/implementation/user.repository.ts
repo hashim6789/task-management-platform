@@ -44,7 +44,7 @@ export class UserRepository
       limit = "10",
       search = "",
       role = "user",
-      isBlocked = "false",
+      isBlocked = "all",
       sortBy = "createdAt",
       sortOrder = "desc",
     } = query;
@@ -54,8 +54,14 @@ export class UserRepository
 
     const filter: FilterQuery<IUser> = {
       role,
-      isBlocked: isBlocked === "true",
     };
+
+    console.log("query", query);
+
+    if (isBlocked !== "all") {
+      filter.isBlocked =
+        isBlocked === "false" ? false : (true as IUser["isBlocked"]);
+    }
 
     if (search) {
       filter.$or = [
@@ -67,6 +73,8 @@ export class UserRepository
     const sort: Record<string, 1 | -1> = {
       [sortBy]: sortOrder === "asc" ? 1 : -1,
     };
+
+    console.log("filter", filter);
 
     const data = await this.model
       .find(filter)
