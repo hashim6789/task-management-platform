@@ -1,218 +1,206 @@
-import { useAuth } from "@/hooks/useAuth";
-import { api } from "@/lib";
-import { sampleTasks, sampleUsers } from "@/samples";
-import { Task } from "@/types";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { PieChart, Pie, Cell, Legend as PieLegend } from "recharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RootState } from "@/store";
+import { fetchTasks, fetchUsers } from "@/store/thunks";
+import { useAppDispatch } from "@/store/hiook";
 
-// import { useNavigate } from "react-router-dom";
+export type TaskStatus = "todo" | "in-progress" | "completed";
 
-// Interfaces (based on previous artifacts)
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: "user" | "admin";
-  isBlocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export const AnalyticsDashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const taskState = useSelector((state: RootState) => state.taskManagement);
+  const userState = useSelector((state: RootState) => state.userManagement);
+  const { user: currentUser } = useSelector((state: RootState) => state.auth);
 
-export const AdminDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-  // const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  console.log(user, "user");
-
-  // Redirect non-admins
-  // useEffect(() => {
-  //   if (!user || user.role !== "admin") {
-  //     navigate("/user/dashboard");
-  //   }
-  // }, [user, navigate]);
-
-  // Fetch users and tasks
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // const [usersResponse, tasksResponse] = await Promise.all([
-        //   axiosInstance.get<User[]>("/users"),
-        //   axiosInstance.get<Task[]>("/tasks"),
-        // ]);
-        // setUsers(usersResponse.data);
-        // setTasks(tasksResponse.data);
-        setUsers(sampleUsers);
-        setTasks(sampleTasks);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  // Handle block/unblock user
-  const toggleUserBlock = async (userId: string, isBlocked: boolean) => {
-    try {
-      const action = isBlocked ? "unblock" : "block";
-      await api.post(`/users/${userId}/${action}`);
-      setUsers(
-        users.map((u) =>
-          u._id === userId ? { ...u, isBlocked: !isBlocked } : u
-        )
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : `Failed to ${isBlocked ? "unblock" : "block"} user`
-      );
+    dispatch(fetchTasks());
+    if (currentUser && currentUser.role === "admin") {
+      dispatch(fetchUsers());
     }
-  };
+  }, [currentUser, currentUser?.role, dispatch]);
 
-  // Calculate task metrics
-  const taskMetrics = {
-    total: tasks.length,
-    pending: tasks.filter((t) => t.status === "todo").length,
-    inProgress: tasks.filter((t) => t.status === "in-progress").length,
-    completed: tasks.filter((t) => t.status === "completed").length,
-  };
+  // Task status distribution for Bar Chart
+  const taskStatusData = [
+    {
+      name: "Todo",
+      count: taskState.tasks.filter((t) => t.status === "todo").length,
+    },
+    {
+      name: "In Progress",
+      count: taskState.tasks.filter((t) => t.status === "in-progress").length,
+    },
+    {
+      name: "Completed",
+      count: taskState.tasks.filter((t) => t.status === "completed").length,
+    },
+  ];
 
-  if (loading) {
-    return <div className="text-center p-6">Loading...</div>;
-  }
+  // Task status distribution for Pie Chart
+  const pieChartData = taskStatusData.map((item) => ({
+    name: item.name,
+    value: item.count,
+  }));
 
-  if (error) {
-    return <div className="text-red-500 text-center p-6">{error}</div>;
-  }
+  const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1"];
+
+  // Tasks per user (for admin view)
+  const tasksPerUser = userState.users.map((user) => ({
+    name: user.username,
+    tasks: taskState.tasks.filter((task) => task.assignedTo?._id === user._id)
+      .length,
+  }));
+
+  // User status distribution for Pie Chart (Blocked vs Active)
+  const userStatusData = [
+    {
+      name: "Active",
+      value: userState.users.filter((u) => u.isBlocked === false).length,
+    },
+    {
+      name: "Blocked",
+      value: userState.users.filter((u) => u.isBlocked === true).length,
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-        <button
-          onClick={logout}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Task Analytics Dashboard</h1>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-700">Total Users</h2>
-          <p className="text-3xl font-bold text-blue-600">{users.length}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-700">Active Tasks</h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {taskMetrics.total - taskMetrics.completed}
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Completed Tasks
-          </h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {taskMetrics.completed}
-          </p>
-        </div>
-      </div>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          {currentUser && currentUser.role === "admin" && (
+            <TabsTrigger value="user-analytics">User Analytics</TabsTrigger>
+          )}
+        </TabsList>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          User Management
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-3 text-gray-700">Username</th>
-                <th className="p-3 text-gray-700">Email</th>
-                <th className="p-3 text-gray-700">Role</th>
-                <th className="p-3 text-gray-700">Status</th>
-                <th className="p-3 text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-b">
-                  <td className="p-3">{user.username}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.role === "admin"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.isBlocked
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700"
-                      }`}
-                    >
-                      {user.isBlocked ? "Blocked" : "Active"}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <button
-                      onClick={() => toggleUserBlock(user._id, user.isBlocked)}
-                      className={`px-3 py-1 rounded-md text-sm ${
-                        user.isBlocked
-                          ? "bg-green-600 text-white hover:bg-green-700"
-                          : "bg-red-600 text-white hover:bg-red-700"
-                      }`}
-                    >
-                      {user.isBlocked ? "Unblock" : "Block"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Task Status Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={taskStatusData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="count" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
 
-      {/* Tasks Overview */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Tasks Overview
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 bg-gray-50 rounded-md">
-            <p className="text-gray-600">Pending</p>
-            <p className="text-2xl font-bold text-blue-600">
-              {taskMetrics.pending}
-            </p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Task Status Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieChartData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label
+                      >
+                        {pieChartData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <PieLegend />
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="p-4 bg-gray-50 rounded-md">
-            <p className="text-gray-600">In Progress</p>
-            <p className="text-2xl font-bold text-blue-600">
-              {taskMetrics.inProgress}
-            </p>
-          </div>
-          <div className="p-4 bg-gray-50 rounded-md">
-            <p className="text-gray-600">Completed</p>
-            <p className="text-2xl font-bold text-blue-600">
-              {taskMetrics.completed}
-            </p>
-          </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        {currentUser && currentUser.role === "admin" && (
+          <TabsContent value="user-analytics">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tasks Per User</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={tasksPerUser}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="tasks" fill="#8884d8" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>User Status Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={userStatusData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label
+                        >
+                          {userStatusData.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <PieLegend />
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 };

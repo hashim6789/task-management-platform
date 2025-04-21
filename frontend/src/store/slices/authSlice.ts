@@ -39,6 +39,9 @@ const authSlice = createSlice({
       state.isBlocked = false;
       state.error = null;
     },
+    blockUser: (state, action: PayloadAction<boolean>) => {
+      state.isBlocked = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -64,5 +67,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, clearUser } = authSlice.actions;
+export const { setUser, clearUser, blockUser } = authSlice.actions;
 export const authReducer = authSlice.reducer;

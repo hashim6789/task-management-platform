@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import debounce from "lodash.debounce";
+import { useEffect, useMemo } from "react";
 
 interface UserFiltersProps {
   search: string;
@@ -20,12 +22,25 @@ export function UserFilters({
   setSearch,
   setStatusFilter,
 }: UserFiltersProps) {
+  // Debounced version of setSearch
+  const debouncedSetSearch = useMemo(() => {
+    return debounce((value: string) => {
+      setSearch(value);
+    }, 500);
+  }, [setSearch]);
+
+  useEffect(() => {
+    return () => {
+      debouncedSetSearch.cancel(); // Cleanup on unmount
+    };
+  }, [debouncedSetSearch]);
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-4">
       <Input
         placeholder="Search by username or email"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => debouncedSetSearch(e.target.value)}
         className="max-w-sm"
       />
 

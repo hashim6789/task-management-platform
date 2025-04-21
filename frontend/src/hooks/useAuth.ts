@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { axiosInstance } from "@/lib";
 import { Socket } from "socket.io-client";
 import { disconnectSocket, initializeSocket } from "@/lib/socket";
+import { AxiosError } from "axios";
 
 interface AuthState {
   user: User | null;
@@ -57,8 +58,8 @@ export const useAuth = (): AuthState => {
       }
       toast.success("Login successful!");
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Invalid email or password");
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.error || "Invalid email or password");
       } else {
         toast.error("Invalid email or password");
       }

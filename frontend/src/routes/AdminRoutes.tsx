@@ -1,5 +1,5 @@
 import {
-  AdminDashboard,
+  AnalyticsDashboard,
   Layout,
   TaskManagement,
   TasksPage,
@@ -17,7 +17,7 @@ export const AdminRoutes = () => [
           {
             element: <Layout />,
             children: [
-              { path: "dashboard", element: <AdminDashboard /> },
+              { path: "dashboard", element: <AnalyticsDashboard /> },
               { path: "users", element: <UsersPage /> },
               { path: "tasks", element: <TasksPage role="admin" /> },
               { path: "management", element: <TaskManagement role="admin" /> },

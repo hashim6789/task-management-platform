@@ -17,7 +17,7 @@ import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
 import { AxiosError } from "axios";
 import { TOAST_MESSAGES, USER_MESSAGE } from "@/constants";
-import { toggleBlockUser } from "@/store/thunks";
+import { fetchUsers, toggleBlockUser } from "@/store/thunks";
 
 export function useUserManagement() {
   const { toast } = useToast();
@@ -115,14 +115,27 @@ export function useUserManagement() {
   return {
     ...userManagement,
     columns,
-    setSearch: (search: string) => dispatch(setSearch(search)),
+    setSearch: (search: string) => {
+      dispatch(setSearch(search));
+      dispatch(fetchUsers());
+    },
 
-    setStatusFilter: (statusFilter: "all" | "active" | "blocked") =>
-      dispatch(setStatusFilter(statusFilter)),
-    setSort: (sortBy: keyof User, sortOrder: "asc" | "desc") =>
-      dispatch(setSort({ sortBy, sortOrder })),
-    setPage: (page: number) => dispatch(setPage(page)),
-    setLimit: (limit: number) => dispatch(setLimit(limit)),
+    setStatusFilter: (statusFilter: "all" | "active" | "blocked") => {
+      dispatch(setStatusFilter(statusFilter));
+      dispatch(fetchUsers());
+    },
+    setSort: (sortBy: keyof User, sortOrder: "asc" | "desc") => {
+      dispatch(setSort({ sortBy, sortOrder }));
+      dispatch(fetchUsers());
+    },
+    setPage: (page: number) => {
+      dispatch(setPage(page));
+      dispatch(fetchUsers());
+    },
+    setLimit: (limit: number) => {
+      dispatch(setLimit(limit));
+      dispatch(fetchUsers());
+    },
     setViewMode: (viewMode: "list" | "card") => dispatch(setViewMode(viewMode)),
     toggleBlockUser: handleToggleBlockUser,
     clearError: () => dispatch(clearError()),

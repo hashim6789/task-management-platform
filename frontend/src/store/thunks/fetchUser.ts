@@ -24,7 +24,7 @@ export const fetchUsers = createAsyncThunk(
             ? false
             : userManagement.statusFilter === "blocked"
             ? true
-            : undefined,
+            : "all",
         sortBy: userManagement.sortBy,
         sortOrder: userManagement.sortOrder,
       };

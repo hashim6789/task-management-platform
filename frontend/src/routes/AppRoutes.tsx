@@ -6,10 +6,15 @@ import { useSelector } from "react-redux";
 import { AdminRoutes } from "./AdminRoutes";
 import { UserRoutes } from "./UserRoutes";
 import { RootState } from "../store";
-import { LoginForm } from "../components/auth/login-form";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/store/hiook";
 import { fetchMe } from "@/store/thunks";
+import {
+  LoginPage,
+  NotFoundPage,
+  ServerErrorPage,
+  UserBlockedPage,
+} from "@/pages";
 
 const AppRoutes: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -27,7 +32,7 @@ const AppRoutes: React.FC = () => {
       element: user ? (
         <Navigate to={`/${user.role}/dashboard`} />
       ) : (
-        <LoginForm />
+        <LoginPage />
       ),
     },
     {
@@ -35,15 +40,19 @@ const AppRoutes: React.FC = () => {
       element: user ? (
         <Navigate to={`/${user.role}/dashboard`} />
       ) : (
-        <LoginForm />
+        <LoginPage />
       ),
     },
 
-    // {
-    //   path: "/500",
-    //   element: <ServerErrorPage role="admin" theme={"light"} />,
-    // },
-    // { path: "*", element: <NotFoundPage role={user} theme={"light"} /> },
+    {
+      path: "/blocked",
+      element: <UserBlockedPage />,
+    },
+    {
+      path: "/500",
+      element: <ServerErrorPage />,
+    },
+    { path: "*", element: <NotFoundPage /> },
   ];
 
   return useRoutes(routes);

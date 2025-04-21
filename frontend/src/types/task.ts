@@ -16,8 +16,6 @@ export type StageType = "todo" | "in-progress" | "completed";
 //   updatedAt: string;
 // }
 
-export type TaskStatus = "todo" | "in-progress" | "completed";
-
 export interface Task {
   _id: string;
   title: string;
@@ -28,4 +26,5 @@ export interface Task {
   updatedAt: string;
   assignedTo: { _id: string; username: string } | null;
 }
+export type TaskStatus = "todo" | "in-progress" | "completed";
 export const STATUS_ORDER: TaskStatus[] = ["todo", "in-progress", "completed"];

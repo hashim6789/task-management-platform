@@ -1,6 +1,5 @@
 import ProtectedRoute from "./ProtectedRoute";
-import Dashboard from "@/pages/dashboardA";
-import { Layout, TaskManagement, TasksPage } from "@/pages";
+import { AnalyticsDashboard, Layout, TaskManagement, TasksPage } from "@/pages";
 
 export const UserRoutes = () => [
   {
@@ -12,7 +11,7 @@ export const UserRoutes = () => [
           {
             element: <Layout />,
             children: [
-              { path: "dashboard", element: <Dashboard /> },
+              { path: "dashboard", element: <AnalyticsDashboard /> },
               { path: "tasks", element: <TasksPage role="user" /> },
               { path: "management", element: <TaskManagement role="user" /> },
             ],

@@ -3,12 +3,14 @@ import type { Socket } from "socket.io-client";
 import { Task } from "@/types";
 import { AppDispatch } from "@/store";
 import { updateTask } from "@/store/slices/taskSlice";
+import { blockUser } from "@/store/slices/authSlice";
 
 // Define server-to-client events
 interface ServerToClientEvents {
   "task:created": (task: Task) => void;
   "task:updated": (task: Task) => void;
   "task:assigned": (task: Task) => void;
+  "user:blocked": (userId: string, isBlocked: boolean) => void;
   connect: () => void;
   connect_error: (error: Error) => void;
   disconnect: () => void;
@@ -23,6 +25,7 @@ interface ClientToServerEvents {
   "task:created": (task: Task) => void;
   "task:updated": (task: Task) => void;
   "task:assigned": (task: Task) => void;
+  "user:blocked": (userId: string) => void;
 }
 
 // Define the socket with custom event types
@@ -85,6 +88,14 @@ export const initializeSocket = (
         task,
       });
       dispatch(updateTask(task));
+    });
+
+    socket.on("user:blocked", (userId: string, isBlocked: boolean) => {
+      console.log("Received user:blocked", {
+        userId,
+        isBlocked,
+      });
+      dispatch(blockUser(isBlocked));
     });
   }
   return socket;
