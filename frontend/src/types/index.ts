@@ -31,15 +31,16 @@ export interface User {
 // }
 
 export type TaskStatus = "todo" | "in-progress" | "completed";
+
 export interface Task {
   _id: string;
   title: string;
-  description: string;
-  status: TaskStatus;
-  assignedTo?: User;
+  description: string | null;
+  status: "todo" | "in-progress" | "completed";
   dueDate: string;
   createdAt: string;
   updatedAt: string;
+  assignedTo: { _id: string; username: string } | null;
 }
 
 export interface StatsCard {

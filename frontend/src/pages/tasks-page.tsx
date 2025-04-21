@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useTaskManagement } from "@/hooks/use-task-management";
 import { useAppDispatch } from "@/store/hiook";
 import { RootState } from "@/store/store";
-import { fetchTasks } from "@/store/slices/taskSlice";
+import { setIsManagement } from "@/store/slices/taskSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
 import { TaskTable } from "@/components/tables/task-table";
 import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { Role } from "@/types";
+import { fetchTasks } from "@/store/thunks/fetchTask";
 
 interface TasksPageProps {
   role: Role;
@@ -33,6 +33,7 @@ export function TasksPage({ role }: TasksPageProps) {
     total,
     page,
     limit,
+    isManagement,
     search,
     statusFilter,
     viewMode,
@@ -44,7 +45,7 @@ export function TasksPage({ role }: TasksPageProps) {
     setPage,
     setLimit,
     setViewMode,
-    updateTaskStatus,
+    // updateTaskStatus,
     clearError,
     isAdmin,
   } = useTaskManagement();
@@ -52,6 +53,7 @@ export function TasksPage({ role }: TasksPageProps) {
 
   useEffect(() => {
     if (isAuthenticated) {
+      dispatch(setIsManagement(false));
       dispatch(fetchTasks());
     }
   }, [dispatch, isAuthenticated]);
@@ -84,16 +86,8 @@ export function TasksPage({ role }: TasksPageProps) {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Task Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Task List</h1>
         <div className="flex items-center gap-4">
-          {isAdmin && (
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary/90"
-            >
-              Create Task
-            </Button>
-          )}
           <div className="flex items-center gap-2">
             <Switch
               checked={viewMode === "card"}
@@ -134,8 +128,8 @@ export function TasksPage({ role }: TasksPageProps) {
             <TaskCard
               key={task._id}
               task={task}
-              onUpdateStatus={updateTaskStatus}
               isAdmin={isAdmin}
+              isManagement={isManagement}
             />
           ))}
         </div>

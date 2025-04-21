@@ -5,22 +5,41 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { useAppDispatch } from "@/store/hiook";
+import { useTaskManagement } from "@/hooks/use-task-management";
 import { RootState } from "@/store/store";
-import {
-  assignTask,
-  fetchTasks,
-  updateTaskStatus,
-} from "@/store/slices/taskSlice";
+import { setIsManagement } from "@/store/slices/taskSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
 import { TaskTable } from "@/components/tables/task-table";
 import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { ErrorBoundary } from "@/components/common/error-boundary";
-import { Role } from "@/types";
+import { Role, Task } from "@/types";
+import { initializeSocket, disconnectSocket } from "@/lib/socket";
+import type { Socket } from "socket.io-client";
+import { useAppDispatch } from "@/store/hiook";
 import { fetchUsers } from "@/store/slices/userManagentSlice";
-import { useTaskManagement } from "@/hooks/use-task-management";
+import { fetchTasks } from "@/store/thunks/fetchTask";
+import { assignTask } from "@/store/thunks/assignTask";
+
+interface ServerToClientEvents {
+  "task:created": (task: Task) => void;
+  "task:updated": (task: Task) => void;
+  "task:assigned": (task: Task) => void;
+  connect: () => void;
+  connect_error: (error: Error) => void;
+  disconnect: () => void;
+}
+
+interface ClientToServerEvents {
+  login: (
+    userId: string,
+    callback: (success: boolean, message?: string) => void
+  ) => void;
+  "task:created": (task: Task) => void;
+  "task:updated": (task: Task) => void;
+  "task:assigned": (task: Task) => void;
+}
 
 interface TaskManagementProps {
   role: Role;
@@ -33,6 +52,7 @@ export function TaskManagement({ role }: TaskManagementProps) {
     isAuthenticated,
     loading: authLoading,
     error: authError,
+    user,
   } = useSelector((state: RootState) => state.auth);
   const { users } = useSelector((state: RootState) => state.userManagement);
   const {
@@ -46,6 +66,7 @@ export function TaskManagement({ role }: TaskManagementProps) {
     loading,
     error,
     columns,
+    updateTaskStatus,
     setSearch,
     setStatusFilter,
     setPage,
@@ -59,19 +80,40 @@ export function TaskManagement({ role }: TaskManagementProps) {
   // Memoize tasks to prevent unnecessary re-renders
   const stableTasks = useMemo(() => tasks.filter((task) => task._id), [tasks]);
 
-  console.log("Tasks in TaskManagement:", stableTasks);
+  console.debug("Rendering TaskManagement", {
+    taskCount: stableTasks.length,
+    viewMode,
+  });
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
+      console.debug("Initializing TaskManagement", {
+        userId: user._id,
+        isAdmin,
+      });
       dispatch(fetchTasks());
+      dispatch(setIsManagement(true));
+
       if (isAdmin) {
         dispatch(fetchUsers());
       }
+
+      // Initialize and connect Socket.IO
+      const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+        initializeSocket(user._id, dispatch);
+      socket.connect();
+
+      // Cleanup on unmount
+      return () => {
+        console.debug("Cleaning up TaskManagement");
+        disconnectSocket();
+      };
     }
-  }, [dispatch, isAuthenticated, isAdmin]);
+  }, [dispatch, isAuthenticated, isAdmin, user]);
 
   useEffect(() => {
     if (error) {
+      console.debug("Error occurred", { error });
       const timer = setTimeout(() => clearError(), 5000);
       return () => clearTimeout(timer);
     }
@@ -86,11 +128,13 @@ export function TaskManagement({ role }: TaskManagementProps) {
   }
 
   if (authError || !isAuthenticated) {
+    console.debug("Redirecting to login", { authError, isAuthenticated });
     navigate("/login");
     return null;
   }
 
   if (role === "admin" && !isAdmin) {
+    console.debug("Redirecting to home: Not admin");
     navigate("/");
     return null;
   }
@@ -150,14 +194,14 @@ export function TaskManagement({ role }: TaskManagementProps) {
             <TaskCard
               key={task._id}
               task={task}
-              onUpdateStatus={async (taskId, status) => {
-                await updateTaskStatus({ taskId, status });
-              }}
+              onUpdateStatus={updateTaskStatus}
               onAssignUser={async (taskId, userId) => {
-                if (userId) await dispatch(assignTask({ taskId, userId }));
+                console.debug("Assigning task from UI", { taskId, userId });
+                await dispatch(assignTask({ taskId, userId }));
               }}
               isAdmin={isAdmin}
               users={users}
+              isManagement
             />
           ))}
         </div>

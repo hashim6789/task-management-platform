@@ -1,3 +1,5 @@
+import { useEffect, useMemo } from "react";
+import debounce from "lodash.debounce";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,12 +23,25 @@ export function TaskFilters({
   setSearch,
   setStatusFilter,
 }: TaskFiltersProps) {
+  // Debounced version of setSearch
+  const debouncedSetSearch = useMemo(() => {
+    return debounce((value: string) => {
+      setSearch(value);
+    }, 500);
+  }, [setSearch]);
+
+  useEffect(() => {
+    return () => {
+      debouncedSetSearch.cancel(); // Cleanup on unmount
+    };
+  }, [debouncedSetSearch]);
+
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <Input
         placeholder="Search tasks..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        defaultValue={search}
+        onChange={(e) => debouncedSetSearch(e.target.value)}
         className="max-w-sm"
       />
       <Select value={statusFilter} onValueChange={setStatusFilter}>

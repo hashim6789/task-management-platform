@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
-import { Task, TaskStatus, STATUS_ORDER, isValidTask } from "@/types";
+import { Task, TaskStatus, STATUS_ORDER } from "@/types";
 import { RootState } from "@/store/store";
 import { useAppDispatch } from "@/store/hiook";
 import { useToast } from "@/hooks/use-toast";
@@ -13,8 +13,6 @@ import {
   setLimit,
   setViewMode,
   clearError,
-  updateTaskStatus,
-  assignTask,
 } from "@/store/slices/taskSlice";
 import { TOAST_MESSAGES, TASK_MESSAGE } from "@/constants";
 import {
@@ -24,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { updateTaskStatus } from "@/store/thunks/updateTaskStatus";
+import { assignTask } from "@/store/thunks/assignTask";
+import { fetchTasks } from "@/store/thunks/fetchTask";
 
 export function useTaskManagement() {
   const { toast } = useToast();
@@ -34,14 +35,17 @@ export function useTaskManagement() {
     (state: RootState) => state.taskManagement
   );
 
+  // cosnt {search, statusFilter, sortBy, sortOrder, page, limit}= taskManagement
+
   // Filter valid tasks
-  const validTasks = taskManagement.tasks.filter(isValidTask);
-  console.log("Valid Tasks in useTaskManagement:", validTasks);
+  // const validTasks = taskManagement.tasks.filter(isValidTask);
+  // console.log("Valid Tasks in useTaskManagement:", validTasks);
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
     try {
+      const userId = currentUser?._id as string;
       const result = await dispatch(
-        updateTaskStatus({ taskId, status })
+        updateTaskStatus({ taskId, status, userId })
       ).unwrap();
       toast({
         title: TOAST_MESSAGES.successTitle,
@@ -60,7 +64,7 @@ export function useTaskManagement() {
   const handleAssignTask = async (taskId: string, userId: string | null) => {
     try {
       const result = await dispatch(
-        assignTask({ taskId, userId: userId ?? "" })
+        assignTask({ taskId, userId: userId ?? null })
       ).unwrap();
       toast({
         title: TOAST_MESSAGES.successTitle,
@@ -96,32 +100,36 @@ export function useTaskManagement() {
       header: "Status",
       render: (task?: Task) =>
         task ? (
-          <Select
-            value={task.status}
-            onValueChange={(value: TaskStatus) =>
-              handleUpdateTaskStatus(task._id, value)
-            }
-          >
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_ORDER.map((status) => (
-                <SelectItem
-                  key={status}
-                  value={status}
-                  disabled={
-                    currentUser?.role !== "admin" &&
-                    STATUS_ORDER.indexOf(status) <=
-                      STATUS_ORDER.indexOf(task.status)
-                  }
-                >
-                  {status.charAt(0).toUpperCase() +
-                    status.slice(1).replace("-", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          currentUser?.role === "user" && taskManagement.isManagement ? (
+            <Select
+              value={task.status}
+              onValueChange={(value: TaskStatus) =>
+                handleUpdateTaskStatus(task._id, value)
+              }
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_ORDER.map((status) => (
+                  <SelectItem
+                    key={status}
+                    value={status}
+                    disabled={
+                      currentUser?.role !== "user" &&
+                      STATUS_ORDER.indexOf(status) <=
+                        STATUS_ORDER.indexOf(task.status)
+                    }
+                  >
+                    {status.charAt(0).toUpperCase() +
+                      status.slice(1).replace("-", " ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div>{task.status}</div>
+          )
         ) : (
           <div>N/A</div>
         ),
@@ -130,7 +138,7 @@ export function useTaskManagement() {
       key: "assignedTo",
       header: "Assigned To",
       render: (task?: Task) =>
-        task && currentUser?.role === "admin" ? (
+        task && currentUser?.role === "admin" && taskManagement.isManagement ? (
           <Select
             value={task.assignedTo?._id ?? "unassigned"}
             onValueChange={(userId: string) =>
@@ -176,15 +184,28 @@ export function useTaskManagement() {
 
   return {
     ...taskManagement,
-    tasks: validTasks,
+    tasks: taskManagement.tasks,
     columns,
-    setSearch: (search: string) => dispatch(setSearch(search)),
-    setStatusFilter: (statusFilter: TaskStatus | "all") =>
-      dispatch(setStatusFilter(statusFilter)),
-    setSort: (sortBy: keyof Task, sortOrder: "asc" | "desc") =>
-      dispatch(setSort({ sortBy, sortOrder })),
-    setPage: (page: number) => dispatch(setPage(page)),
-    setLimit: (limit: number) => dispatch(setLimit(limit)),
+    setSearch: (search: string) => {
+      dispatch(setSearch(search));
+      dispatch(fetchTasks());
+    },
+    setStatusFilter: (statusFilter: TaskStatus | "all") => {
+      dispatch(setStatusFilter(statusFilter));
+      dispatch(fetchTasks());
+    },
+    setSort: (sortBy: keyof Task, sortOrder: "asc" | "desc") => {
+      dispatch(setSort({ sortBy, sortOrder }));
+      dispatch(fetchTasks());
+    },
+    setPage: (page: number) => {
+      dispatch(setPage(page));
+      dispatch(fetchTasks());
+    },
+    setLimit: (limit: number) => {
+      dispatch(setLimit(limit));
+      dispatch(fetchTasks());
+    },
     setViewMode: (viewMode: "list" | "card") => dispatch(setViewMode(viewMode)),
     updateTaskStatus: handleUpdateTaskStatus,
     assignTask: handleAssignTask,

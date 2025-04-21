@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { createTask } from "@/store/slices/taskSlice";
 import { useAppDispatch } from "@/store/hiook";
 import { TOAST_MESSAGES, TASK_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
@@ -34,6 +33,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { createTask } from "@/store/thunks/createTask";
 
 const formSchema = z.object({
   title: z

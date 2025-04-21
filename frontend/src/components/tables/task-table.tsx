@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { JSX } from "react";
 
 interface TaskTableProps {
   tasks: Task[];
