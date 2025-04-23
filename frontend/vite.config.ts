@@ -11,8 +11,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000, // Set the development server to run on port 3000
-    open: true, // Optional: Automatically open the browser
+    port: 3000,
+    open: true,
     strictPort: true,
     host: true,
     origin: "http://0.0.0.0:3000",

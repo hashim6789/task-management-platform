@@ -43,7 +43,7 @@ export const connectSocket = (server: HttpServer): typeof io => {
 
   io = new Server(server, {
     cors: {
-      origin: env.CLIENT_ORIGIN || "http://localhost:3000",
+      origin: env.CLIENT_ORIGIN,
       methods: ["GET", "POST"],
       credentials: true,
     },

@@ -14,7 +14,7 @@ import { validateEnv } from "@/utils";
 validateEnv();
 
 //* configs
-import { connectDb } from "@/configs";
+import { connectDb, corsConfig } from "@/configs";
 // import { connectRedis } from "@/configs";
 
 //* routers
@@ -29,14 +29,7 @@ import { connectSocket } from "./configs/socket.config";
 
 const app: Express = express();
 const server = http.createServer(app);
-app.use(
-  cors({
-    origin: env.CLIENT_ORIGIN,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors(corsConfig));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -126,7 +126,7 @@ export const AnalyticsDashboard: React.FC = () => {
                         dataKey="value"
                         label
                       >
-                        {pieChartData.map((entry, index) => (
+                        {pieChartData.map((_, index) => (
                           <Cell
                             key={`cell-${index}`}
                             fill={COLORS[index % COLORS.length]}
@@ -183,7 +183,7 @@ export const AnalyticsDashboard: React.FC = () => {
                           dataKey="value"
                           label
                         >
-                          {userStatusData.map((entry, index) => (
+                          {userStatusData.map((_, index) => (
                             <Cell
                               key={`cell-${index}`}
                               fill={COLORS[index % COLORS.length]}

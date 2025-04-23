@@ -1,3 +1,4 @@
+import { env } from "@/configs";
 import axios, {
   AxiosInstance,
   InternalAxiosRequestConfig,
@@ -6,7 +7,7 @@ import axios, {
 } from "axios";
 
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api", // Replace with your backend API base URL
+  baseURL: `${env.SERVER_ORIGIN}/api`, // Replace with your backend API base URL
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
@@ -17,6 +18,7 @@ export const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     console.log("axios");
+    console.log("origin from env", env.SERVER_ORIGIN);
     const token: string | null = localStorage.getItem("authToken");
     if (token) {
       config.headers = config.headers || {};

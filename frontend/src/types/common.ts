@@ -1,3 +1,5 @@
+import { Task } from "./task";
+
 export interface StatsCard {
   _id: string;
   label: string;
