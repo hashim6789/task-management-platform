@@ -1,3 +1,50 @@
+# # version: "3.8"
+
+# services:
+#   nginx:
+#     container_name: mt-nginx
+#     image: nginx:alpine
+#     ports:
+#       - "80:80"
+#     depends_on:
+#       - frontend
+#       - backend
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf
+#       - mt-frontend-dist:/usr/share/nginx/html
+
+#   frontend:
+#     container_name: mt-frontend
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     env_file:
+#       - ./frontend/.env
+#     working_dir: /app/frontend
+#     volumes:
+#       - mt-frontend-dist:/app/frontend/dist
+#     command: "serve -s dist"
+
+#   backend:
+#     container_name: mt-backend
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:5000"
+#     env_file:
+#       - ./backend/.env
+#     working_dir: /app/backend
+#     volumes:
+#       - ./backend:/app/backend
+#     command: npm run dev
+
+# volumes:
+#   mongodb-data:
+#   mt-frontend-dist:
+
 # version: "3.8"
 
 services:
@@ -10,37 +57,28 @@ services:
       - frontend
       - backend
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - mt-frontend-dist:/usr/share/nginx/html
 
   frontend:
     container_name: mt-frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./frontend/.env
-    working_dir: /app/frontend
+    image: hashim6789/task_frontend:latest
+    environment:
+      - NODE_ENV=production
     volumes:
       - mt-frontend-dist:/app/frontend/dist
-    command: "serve -s dist"
+    env_file:
+      - ./frontend/.env
 
   backend:
     container_name: mt-backend
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: hashim6789/task_backend:latest
+    environment:
+      - NODE_ENV=production
     ports:
       - "5000:5000"
     env_file:
       - ./backend/.env
-    working_dir: /app/backend
-    volumes:
-      - ./backend:/app/backend
-    command: npm run dev
 
 volumes:
-  mongodb-data:
   mt-frontend-dist:

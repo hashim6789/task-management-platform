@@ -7,7 +7,7 @@ import axios, {
 } from "axios";
 
 export const axiosInstance: AxiosInstance = axios.create({
-  baseURL: `${env.SERVER_ORIGIN}/api`, // Replace with your backend API base URL
+  baseURL: `http://13.232.204.225/api`, // Replace with your backend API base URL
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
