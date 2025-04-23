@@ -35,6 +35,7 @@ export const HttpResponse = {
   BLOG_IMAGE_NOT_FOUND: "Blog thumbnail not found",
   NO_ACCESS_RESOURCE: "You have no access!",
   INVALID_REFRESH_TOKEN: "Invalid refresh token!",
+  INVALID_ACCESS_TOKEN: "Invalid access token!",
   TASK_NOT_FOUND: "The task not found!",
   USER_BLOCKED: "The User blocked!",
 };

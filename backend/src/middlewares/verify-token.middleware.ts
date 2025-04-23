@@ -5,6 +5,12 @@ import { HttpStatus } from "@/constants/status.constant";
 import { createHttpError, HttpError } from "@/utils/http-error.util";
 import { Role } from "@/types";
 
+type DecodedToken = {
+  id: string;
+  email: string;
+  role: "admin" | "user";
+};
+
 export default function (
   allowedRoles: Role[]
 ): (req: Request, res: Response, next: NextFunction) => void {
@@ -16,11 +22,22 @@ export default function (
         throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN);
       }
 
-      const payload = verifyAccessToken(accessToken) as {
-        id: string;
-        email: string;
-        role: "user" | "admin";
-      };
+      const result = verifyAccessToken(accessToken);
+      if (!result.valid) {
+        if (result.expired) {
+          throw createHttpError(
+            HttpStatus.UNAUTHORIZED,
+            HttpResponse.TOKEN_EXPIRED
+          );
+        } else {
+          throw createHttpError(
+            HttpStatus.UNAUTHORIZED,
+            HttpResponse.INVALID_ACCESS_TOKEN
+          );
+        }
+      }
+
+      const payload = result.decoded as DecodedToken;
 
       if (!allowedRoles.includes(payload.role)) {
         throw createHttpError(
@@ -32,35 +49,13 @@ export default function (
       req.headers["x-user-payload"] = JSON.stringify(payload);
       next();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: unknown) {
       console.error({ message: "Error in auth middleware", error: err });
 
-      if (
-        err instanceof HttpError &&
-        err.statusCode === HttpStatus.UNAUTHORIZED
-      ) {
-        // Authentication error (e.g., missing or expired token)
-        res.status(HttpStatus.UNAUTHORIZED).json({
+      if (err instanceof HttpError) {
+        res.status(err.statusCode).json({
           message: err.message,
-        });
-      } else if (err instanceof Error && err.name === "TokenExpiredError") {
-        // Authentication error (expired token specifically)
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          message: HttpResponse.TOKEN_EXPIRED,
-        });
-      } else if (
-        err instanceof HttpError &&
-        err.statusCode === HttpStatus.FORBIDDEN
-      ) {
-        // Authorization error
-        res.status(HttpStatus.FORBIDDEN).json({
-          message: err.message,
-        });
-      } else {
-        // Fallback for unexpected errors
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          message: "An unexpected error occurred.",
         });
       }
     }
