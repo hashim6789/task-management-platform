@@ -6,6 +6,8 @@ import axios, {
   AxiosResponse,
 } from "axios";
 
+console.log(env.SERVER_ORIGIN);
+
 interface FailedRequest {
   resolve: (value: AxiosResponse | PromiseLike<AxiosResponse>) => void;
   reject: (reason?: AxiosError) => void;
@@ -13,7 +15,7 @@ interface FailedRequest {
 }
 
 const api: AxiosInstance = axios.create({
-  baseURL: `${env.SERVER_ORIGIN}/api`,
+  baseURL: `http://13.232.204.225/api`,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
