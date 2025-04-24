@@ -16,7 +16,6 @@ interface FailedRequest {
 
 const api: AxiosInstance = axios.create({
   baseURL: `${env.SERVER_ORIGIN}/api`,
-  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
