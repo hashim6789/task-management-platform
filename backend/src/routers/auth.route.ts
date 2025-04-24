@@ -26,14 +26,13 @@ authRouter.post(
 
 authRouter.get(
   "/me",
-  validateBlockedOrNot(),
   verifyTokenMiddleware(["admin", "user"]),
+  validateBlockedOrNot(),
   authController.me.bind(authController)
 );
 
 authRouter.post(
   "/login",
-  validateBlockedOrNot(),
   validate(loginSchema),
   authController.login.bind(authController)
 );
