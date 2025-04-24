@@ -9,6 +9,8 @@ export const validate =
   (req: Request, res: Response, next: NextFunction): void => {
     try {
       schema.parse(req.body);
+
+      console.log(req.body, "zod");
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -20,4 +22,3 @@ export const validate =
       }
     }
   };
-

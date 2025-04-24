@@ -4,6 +4,7 @@ import { Task } from "@/types";
 import { AppDispatch } from "@/store";
 import { updateTask } from "@/store/slices/taskSlice";
 import { blockUser } from "@/store/slices/authSlice";
+import { env } from "@/configs";
 
 // Define server-to-client events
 interface ServerToClientEvents {
@@ -36,7 +37,7 @@ export const initializeSocket = (
   dispatch: AppDispatch
 ): Socket<ServerToClientEvents, ClientToServerEvents> => {
   if (!socket) {
-    socket = io(`http://13.232.204.225/real`, {
+    socket = io(`${env.SERVER_ORIGIN}/real`, {
       auth: { userId },
       autoConnect: false,
       reconnection: true,

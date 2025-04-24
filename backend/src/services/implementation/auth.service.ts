@@ -30,6 +30,7 @@ export class AuthService implements IAuthService {
     }
 
     const isMatch = await comparePassword(password, user.password);
+    console.log(user, password, isMatch);
 
     if (!isMatch) {
       throw createHttpError(

@@ -22,7 +22,7 @@ export class UserService implements IUserService {
     }
     const user = await this._userRepository.findByEmail(data.email);
     const generatedPassword = generateRandomPassword(6);
-    const hashedPassword = await hashPassword("111111");
+    const hashedPassword = await hashPassword(generatedPassword);
     if (user) {
       throw createHttpError(
         HttpStatus.BAD_REQUEST,

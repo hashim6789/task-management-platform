@@ -33,3 +33,57 @@ services:
 
 volumes:
   mt-frontend-dist:
+# version: "3.8"
+
+# services:
+#   nginx:
+#     container_name: mt-nginx
+#     image: nginx:alpine
+#     ports:
+#       - "80:80"
+#     depends_on:
+#       - frontend
+#       - backend
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf
+#       - mt-frontend-dist:/usr/share/nginx/html
+
+#   frontend:
+#     container_name: mt-frontend
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     working_dir: /app/frontend
+#     volumes:
+#       - mt-frontend-dist:/app/frontend/dist
+#     command: "serve -s dist"
+
+#   backend:
+#     container_name: mt-backend
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5000:5000"
+#     # depends_on:
+#     #   - mongodb
+#     env_file:
+#       - ./backend/.env
+#     working_dir: /app/backend
+#     volumes:
+#       - ./backend:/app/backend
+#     command: npm run dev
+
+#   # mongodb:
+#   #   container_name: mt-mongodb
+#   #   image: mongo
+#   #   env_file:
+#   #     - ./backend/.env
+#   #   volumes:
+#   #     - mongodb-data:/data/db
+
+# volumes:
+#   mongodb-data:
+#   mt-frontend-dist:
