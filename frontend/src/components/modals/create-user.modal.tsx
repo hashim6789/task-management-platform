@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useDispatch } from "react-redux";
 
 import { User } from "@/types";
@@ -22,18 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { api } from "@/lib";
+import { api, toastError, toastSuccess } from "@/lib";
 import { addUser } from "@/store/slices/userManagementSlice";
-import { TOAST_MESSAGES, USER_MESSAGE } from "@/constants";
+import { USER_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
-
-const formSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email address"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { userFormSchema, UserFormValues } from "@/schemas";
 
 interface CreateUserModalProps {
   open: boolean;
@@ -41,36 +33,30 @@ interface CreateUserModalProps {
 }
 
 export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
-  const { toast } = useToast();
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
     defaultValues: {
       username: "",
       email: "",
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: UserFormValues) => {
     setIsSubmitting(true);
     try {
       const response = await api.post<User>("/users", values);
       dispatch(addUser(response.data));
-      toast({
-        title: TOAST_MESSAGES.successTitle,
-        description: USER_MESSAGE.createSuccess,
-      });
+
+      toastSuccess(USER_MESSAGE.createSuccess);
+
       form.reset();
       onOpenChange(false);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.errorTitle,
-        description: err.response?.data?.message || USER_MESSAGE.createFailed,
-      });
+      toastError(err.response?.data?.message || USER_MESSAGE.createFailed);
     } finally {
       setIsSubmitting(false);
     }

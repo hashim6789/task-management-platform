@@ -20,7 +20,7 @@ const initialState: UserManagementState = {
   users: [],
   total: 0,
   page: 1,
-  limit: 10,
+  limit: 6,
   search: "",
   statusFilter: "all",
   sortBy: "createdAt",

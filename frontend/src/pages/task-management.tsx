@@ -14,14 +14,12 @@ import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { ErrorBoundary } from "@/components/common/error-boundary";
-// import { ClientToServerEvents, Role, ServerToClientEvents } from "@/types";
-// import { initializeSocket, disconnectSocket } from "@/lib/socket";
-// import type { Socket } from "socket.io-client";
 import { useAppDispatch } from "@/store/hiook";
 import { fetchTasks } from "@/store/thunks/fetchTask";
 import { assignTask } from "@/store/thunks/assignTask";
 import { fetchUsers } from "@/store/thunks";
 import { Role } from "@/types";
+import { confirmAction, toastError, toastSuccess } from "@/lib";
 
 interface TaskManagementProps {
   role: Role;
@@ -178,8 +176,20 @@ export function TaskManagement({ role }: TaskManagementProps) {
               task={task}
               onUpdateStatus={updateTaskStatus}
               onAssignUser={async (taskId, userId) => {
-                console.debug("Assigning task from UI", { taskId, userId });
-                await dispatch(assignTask({ taskId, userId }));
+                const confirmed = await confirmAction({
+                  title: "Assign Task",
+                  text: "Do you want to assign this task to the selected user?",
+                  confirmButtonText: "Assign",
+                });
+
+                if (confirmed) {
+                  try {
+                    await dispatch(assignTask({ taskId, userId }));
+                    toastSuccess("Task assigned successfully");
+                  } catch {
+                    toastError("Failed to assign task");
+                  }
+                }
               }}
               isAdmin={isAdmin}
               users={users}

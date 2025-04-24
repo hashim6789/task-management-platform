@@ -15,17 +15,13 @@ validateEnv();
 
 //* configs
 import { connectDb, corsConfig } from "@/configs";
-// import { connectRedis } from "@/configs";
 
 //* routers
-// import authRouter from "@/routers/auth.router";
 import { notFoundHandler } from "@/middlewares";
 import { errorHandler } from "@/middlewares";
 import { env } from "@/configs";
 import { apiRouter } from "./routers";
 import { connectSocket } from "./configs/socket.config";
-// import profileRouter from "./routers/profile.router";
-// import blogRouter from "./routers/blog.router";
 
 const app: Express = express();
 const server = http.createServer(app);
@@ -39,8 +35,6 @@ connectDb();
 connectSocket(server);
 
 app.use("/api", apiRouter);
-// app.use("/api/profile", profileRouter);
-// app.use("/api/blog", blogRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

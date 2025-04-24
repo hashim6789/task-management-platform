@@ -1,12 +1,7 @@
 import { IUserRepository } from "@/repositories/interface";
 import { IUserService } from "../interface";
 import { IUser } from "@/models";
-import {
-  checkEmailExistence,
-  createHttpError,
-  generateRandomPassword,
-  hashPassword,
-} from "@/utils";
+import { createHttpError, generateRandomPassword, hashPassword } from "@/utils";
 import { HttpResponse, HttpStatus } from "@/constants";
 import { CreateUserRequestDTO } from "@/schema/user";
 import { BlockUserDTO, PaginatedData, UserQuery } from "@/types";
@@ -16,11 +11,6 @@ export class UserService implements IUserService {
   constructor(private readonly _userRepository: IUserRepository) {}
 
   async createUser(data: CreateUserRequestDTO): Promise<IUser> {
-    console.log(data);
-    const isEmailValid = await checkEmailExistence(data.email);
-    if (!isEmailValid) {
-      throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_EMAIL);
-    }
     const user = await this._userRepository.findByEmail(data.email);
     const generatedPassword = generateRandomPassword(6);
     const hashedPassword = await hashPassword(generatedPassword);

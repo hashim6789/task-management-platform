@@ -7,13 +7,10 @@ export {
   verifyRefreshToken,
 } from "./jwt.util";
 export { createHttpError, HttpError } from "./http-error.util";
-export { generateOTP } from "./generate-otp.util";
 export { hashPassword, comparePassword } from "./bcrypt.util";
 export { checkEmailExistence } from "./email-verification.utils";
 export { toObjectId } from "./convert-object-id.utils";
-export {
-  generateUniqueUsername,
-  generateRandomPassword,
-} from "./generate-uniq-username";
+
 export * from "./socket.util";
+export * from "./generate-random.util";
 // export { uploadToCloudinary, generateSignedUrl } from "./cloudinary.util";

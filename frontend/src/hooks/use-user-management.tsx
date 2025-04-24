@@ -12,15 +12,14 @@ import {
   clearError,
 } from "@/store/slices/userManagementSlice";
 import { Button } from "@/components/ui/button";
-import { useToast } from "./use-toast";
 import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
 import { AxiosError } from "axios";
-import { TOAST_MESSAGES, USER_MESSAGE } from "@/constants";
+import { USER_MESSAGE } from "@/constants";
 import { fetchUsers, toggleBlockUser } from "@/store/thunks";
+import { confirmAction, toastError, toastSuccess } from "@/lib";
 
 export function useUserManagement() {
-  const { toast } = useToast();
   const dispatch = useAppDispatch();
   const { user: currentUser } = useSelector((state: RootState) => state.auth);
   const userManagement = useSelector(
@@ -29,31 +28,32 @@ export function useUserManagement() {
 
   const handleToggleBlockUser = async (userId: string, isBlocked: boolean) => {
     if (!currentUser || currentUser.role !== "admin") {
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.unauthorizedTitle,
-        description: USER_MESSAGE.unauthorizedDesc,
-      });
+      toastError(USER_MESSAGE.unauthorizedDesc);
       return;
     }
+
+    const confirmed = await confirmAction({
+      title: isBlocked ? "Unblock User" : "Block User",
+      text: `Are you sure you want to ${
+        isBlocked ? "unblock" : "block"
+      } this user?`,
+      confirmButtonText: isBlocked ? "Unblock" : "Block",
+    });
+
+    if (!confirmed) return;
 
     try {
       const result = await dispatch(
         toggleBlockUser({ userId, isBlocked })
       ).unwrap();
-      toast({
-        title: TOAST_MESSAGES.successTitle,
-        description:
-          result.message ||
-          `User ${isBlocked ? "unblocked" : "blocked"} successfully`,
-      });
+
+      toastSuccess(
+        result.message ||
+          `User ${isBlocked ? "unblocked" : "blocked"} successfully`
+      );
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.errorTitle,
-        description: err.response?.data?.message || USER_MESSAGE.updateFailed,
-      });
+      toastError(err.response?.data?.message || USER_MESSAGE.updateFailed);
     }
   };
 

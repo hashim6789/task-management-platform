@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,9 +19,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch } from "@/store/hiook";
-import { TOAST_MESSAGES, TASK_MESSAGE } from "@/constants";
+import { TASK_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
 import { CalendarIcon } from "lucide-react";
 import {
@@ -34,22 +32,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { createTask } from "@/store/thunks/createTask";
-
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, "Title must be at least 3 characters")
-    .max(100, "Title cannot exceed 100 characters"),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(500, "Description cannot exceed 500 characters"),
-  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please select a valid date",
-  }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { toastError, toastSuccess } from "@/lib";
+import { taskFormSchema, TaskFormValues } from "@/schemas";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -57,12 +41,11 @@ interface CreateTaskModalProps {
 }
 
 export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
-  const { toast } = useToast();
   const dispatch = useAppDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -70,23 +53,18 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: TaskFormValues) => {
     setIsSubmitting(true);
     try {
       await dispatch(createTask(values)).unwrap();
-      toast({
-        title: TOAST_MESSAGES.successTitle,
-        description: TASK_MESSAGE.createSuccess,
-      });
+
+      toastSuccess(TASK_MESSAGE.createSuccess);
+
       form.reset();
       onOpenChange(false);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.errorTitle,
-        description: err.response?.data?.message || TASK_MESSAGE.createFailed,
-      });
+      toastError(err.response?.data?.message || TASK_MESSAGE.createFailed);
     } finally {
       setIsSubmitting(false);
     }

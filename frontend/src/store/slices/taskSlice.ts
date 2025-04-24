@@ -26,7 +26,7 @@ const initialState: TaskManagementState = {
   tasks: [],
   total: 0,
   page: 1,
-  limit: 10,
+  limit: 6,
   isManagement: false,
   search: "",
   statusFilter: "all",

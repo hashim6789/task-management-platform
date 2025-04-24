@@ -3,7 +3,6 @@ import { format, isValid } from "date-fns";
 import { Task, TaskStatus, STATUS_ORDER } from "@/types";
 import { RootState } from "@/store";
 import { useAppDispatch } from "@/store/hiook";
-import { useToast } from "@/hooks/use-toast";
 import { AxiosError } from "axios";
 import {
   setSearch,
@@ -14,7 +13,7 @@ import {
   setViewMode,
   clearError,
 } from "@/store/slices/taskSlice";
-import { TOAST_MESSAGES, TASK_MESSAGE } from "@/constants";
+import { TASK_MESSAGE } from "@/constants";
 import {
   Select,
   SelectContent,
@@ -25,9 +24,9 @@ import {
 import { updateTaskStatus } from "@/store/thunks/updateTaskStatus";
 import { assignTask } from "@/store/thunks/assignTask";
 import { fetchTasks } from "@/store/thunks/fetchTask";
+import { confirmAction, toastError, toastSuccess } from "@/lib";
 
 export function useTaskManagement() {
-  const { toast } = useToast();
   const dispatch = useAppDispatch();
   const { user: currentUser } = useSelector((state: RootState) => state.auth);
   const { users } = useSelector((state: RootState) => state.userManagement);
@@ -42,41 +41,45 @@ export function useTaskManagement() {
   // console.log("Valid Tasks in useTaskManagement:", validTasks);
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
+    const confirmed = await confirmAction({
+      title: "Update Task Status",
+      text: `Are you sure you want to mark this task as "${status}"?`,
+      confirmButtonText: "Update",
+    });
+
+    if (!confirmed) return;
+
     try {
       const userId = currentUser?._id as string;
       const result = await dispatch(
         updateTaskStatus({ taskId, status, userId })
       ).unwrap();
-      toast({
-        title: TOAST_MESSAGES.successTitle,
-        description: result.message || TASK_MESSAGE.updateSuccess,
-      });
+
+      toastSuccess(result.message || TASK_MESSAGE.updateSuccess);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.errorTitle,
-        description: err.response?.data?.message || TASK_MESSAGE.updateFailed,
-      });
+      toastError(err.response?.data?.message || TASK_MESSAGE.updateFailed);
     }
   };
 
   const handleAssignTask = async (taskId: string, userId: string | null) => {
+    const confirmed = await confirmAction({
+      title: "Assign Task",
+      text: "Are you sure you want to assign this task to the selected user?",
+      confirmButtonText: "Assign",
+    });
+
+    if (!confirmed) return;
+
     try {
       const result = await dispatch(
         assignTask({ taskId, userId: userId ?? null })
       ).unwrap();
-      toast({
-        title: TOAST_MESSAGES.successTitle,
-        description: result.message || TASK_MESSAGE.assignSuccess,
-      });
+
+      toastSuccess(result.message || TASK_MESSAGE.assignSuccess);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toast({
-        variant: "destructive",
-        title: TOAST_MESSAGES.errorTitle,
-        description: err.response?.data?.message || TASK_MESSAGE.assignFailed,
-      });
+      toastError(err.response?.data?.message || TASK_MESSAGE.assignFailed);
     }
   };
 
