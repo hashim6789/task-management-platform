@@ -16,6 +16,7 @@ export class UserService implements IUserService {
   constructor(private readonly _userRepository: IUserRepository) {}
 
   async createUser(data: CreateUserRequestDTO): Promise<IUser> {
+    console.log(data);
     const isEmailValid = await checkEmailExistence(data.email);
     if (!isEmailValid) {
       throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_EMAIL);
@@ -23,12 +24,14 @@ export class UserService implements IUserService {
     const user = await this._userRepository.findByEmail(data.email);
     const generatedPassword = generateRandomPassword(6);
     const hashedPassword = await hashPassword(generatedPassword);
+    console.log("user", user);
     if (user) {
       throw createHttpError(
         HttpStatus.BAD_REQUEST,
         HttpResponse.USERNAME_EXIST
       );
     }
+
     await sendCredentialsEmail(data.email, data.username, generatedPassword);
     return this._userRepository.create({ ...data, password: hashedPassword });
   }

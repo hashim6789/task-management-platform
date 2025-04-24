@@ -116,6 +116,7 @@ export const sendCredentialsEmail = async (
           </style>
         </head>
         <body>
+        
           <div class="container">
             <div class="header">
               <img src="https://via.placeholder.com/150x50?text=Task Manager+Logo" alt="Task Manager Logo" />
