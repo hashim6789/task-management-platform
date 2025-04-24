@@ -11,7 +11,7 @@ type DecodedToken = {
   role: "admin" | "user";
 };
 
-export default function (
+export function verifyTokenMiddleware(
   allowedRoles: Role[]
 ): (req: Request, res: Response, next: NextFunction) => void {
   return (req: Request, res: Response, next: NextFunction): void => {

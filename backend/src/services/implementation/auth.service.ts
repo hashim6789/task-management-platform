@@ -75,6 +75,10 @@ export class AuthService implements IAuthService {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
     }
 
+    if (user.isBlocked) {
+      throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_BLOCKED);
+    }
+
     return user;
   }
 }

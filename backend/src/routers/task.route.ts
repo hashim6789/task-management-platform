@@ -1,7 +1,10 @@
 import { TaskController } from "@/controllers/implementation/task.controller";
 import { ITaskController } from "@/controllers/interface";
-import { validate } from "@/middlewares";
-import verifyTokenMiddleware from "@/middlewares/verify-token.middleware";
+import {
+  validate,
+  validateBlockedOrNot,
+  verifyTokenMiddleware,
+} from "@/middlewares";
 import TaskModel from "@/models/task.model";
 import UserModel from "@/models/user.model";
 import { TaskRepository, UserRepository } from "@/repositories/implementation";
@@ -29,23 +32,27 @@ const taskController: ITaskController = new TaskController(taskService);
 taskRouter.post(
   "/",
   verifyTokenMiddleware(["admin"]),
+  validateBlockedOrNot(),
   validate(createTaskSchema),
   taskController.createTask.bind(taskController)
 );
 taskRouter.get(
   "/",
   verifyTokenMiddleware(["admin", "user"]),
+  validateBlockedOrNot(),
   taskController.findTasks.bind(taskController)
 );
 taskRouter.patch(
   "/:taskId/assign",
-  validate(assignTaskSchema),
   verifyTokenMiddleware(["admin"]),
+  validateBlockedOrNot(),
+  validate(assignTaskSchema),
   taskController.assignTask.bind(taskController)
 );
 taskRouter.patch(
   "/:taskId",
   verifyTokenMiddleware(["user"]),
+  validateBlockedOrNot(),
   validate(changeStatusTaskSchema),
   taskController.changeStatusOfTask.bind(taskController)
 );
