@@ -5,7 +5,7 @@ import { HttpResponse } from "@/constants/response-message.constant";
 import formatZodErrors from "@/utils/format-zod-error.util";
 import { UserRepository } from "@/repositories/implementation";
 import UserModel from "@/models/user.model";
-import { createHttpError } from "@/utils";
+import { createHttpError, HttpError } from "@/utils";
 
 export const validateBlockedOrNot =
   () =>
@@ -20,11 +20,10 @@ export const validateBlockedOrNot =
       }
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
+      if (error instanceof HttpError) {
         console.log(error);
         res.status(HttpStatus.BAD_REQUEST).json({
-          error: HttpResponse.INVALID_CREDENTIALS,
-          details: formatZodErrors(error),
+          error: HttpResponse.USER_BLOCKED,
         });
       }
     }
