@@ -27,7 +27,6 @@ authRouter.post(
 authRouter.get(
   "/me",
   verifyTokenMiddleware(["admin", "user"]),
-  validateBlockedOrNot(),
   authController.me.bind(authController)
 );
 

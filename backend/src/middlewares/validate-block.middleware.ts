@@ -12,7 +12,9 @@ export const validateBlockedOrNot =
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = JSON.parse(req.headers["x-user-payload"] as string);
+      console.log("id", id);
       const user = await new UserRepository(UserModel).findById(id);
+      console.log("user", user);
       if (!user || user.isBlocked) {
         createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_BLOCKED);
       }
