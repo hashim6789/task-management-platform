@@ -13,7 +13,6 @@ import {
   setViewMode,
   clearError,
 } from "@/store/slices/taskSlice";
-import { TASK_MESSAGE } from "@/constants";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,8 @@ import {
 import { updateTaskStatus } from "@/store/thunks/updateTaskStatus";
 import { assignTask } from "@/store/thunks/assignTask";
 import { fetchTasks } from "@/store/thunks/fetchTask";
-import { confirmAction, toastError, toastSuccess } from "@/lib";
+import { confirmAction, showToast, ToastType } from "@/lib";
+import { TaskMessages } from "@/constants";
 
 export function useTaskManagement() {
   const dispatch = useAppDispatch();
@@ -33,12 +33,6 @@ export function useTaskManagement() {
   const taskManagement = useSelector(
     (state: RootState) => state.taskManagement
   );
-
-  // cosnt {search, statusFilter, sortBy, sortOrder, page, limit}= taskManagement
-
-  // Filter valid tasks
-  // const validTasks = taskManagement.tasks.filter(isValidTask);
-  // console.log("Valid Tasks in useTaskManagement:", validTasks);
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
     const confirmed = await confirmAction({
@@ -55,10 +49,16 @@ export function useTaskManagement() {
         updateTaskStatus({ taskId, status, userId })
       ).unwrap();
 
-      toastSuccess(result.message || TASK_MESSAGE.updateSuccess);
+      showToast({
+        message: result.message || TaskMessages.UPDATE_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.updateFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.UPDATE_FAILED,
+        type: ToastType.ERROR,
+      });
     }
   };
 
@@ -76,10 +76,16 @@ export function useTaskManagement() {
         assignTask({ taskId, userId: userId ?? null })
       ).unwrap();
 
-      toastSuccess(result.message || TASK_MESSAGE.assignSuccess);
+      showToast({
+        message: result.message || TaskMessages.ASSIGN_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.assignFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.ASSIGN_FAILED,
+        type: ToastType.ERROR,
+      });
     }
   };
 

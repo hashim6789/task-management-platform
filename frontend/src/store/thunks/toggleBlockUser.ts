@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { api } from "@/lib";
 import { AxiosError } from "axios";
+import { UserMessages } from "@/constants";
 
 export const toggleBlockUser = createAsyncThunk(
   "userManagement/toggleBlockUser",
@@ -12,7 +13,7 @@ export const toggleBlockUser = createAsyncThunk(
     const state = getState() as RootState;
     const { auth } = state;
     if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
-      return rejectWithValue("Unauthorized");
+      return rejectWithValue(UserMessages.ADMIN_ONLY);
     }
 
     try {
@@ -21,7 +22,7 @@ export const toggleBlockUser = createAsyncThunk(
       });
       return { userId, isBlocked: !isBlocked, message: response.data.message };
     } catch (error: unknown) {
-      let errorMessage = "Failed to update user status";
+      let errorMessage = UserMessages.UPDATE_FAILED;
 
       if (error instanceof AxiosError) {
         errorMessage = error.response?.data?.message || errorMessage;

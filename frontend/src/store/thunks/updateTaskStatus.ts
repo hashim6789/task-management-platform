@@ -3,6 +3,7 @@ import { RootState } from "..";
 import { api } from "@/lib";
 import { STATUS_ORDER, Task, TaskStatus } from "@/types";
 import { AxiosError } from "axios";
+import { AuthMessages, TaskMessages, UserMessages } from "@/constants";
 
 export const updateTaskStatus = createAsyncThunk(
   "taskManagement/updateTaskStatus",
@@ -17,51 +18,36 @@ export const updateTaskStatus = createAsyncThunk(
     const state = getState() as RootState;
     const { auth, taskManagement } = state;
     if (!auth.isAuthenticated || !auth.user || auth.user.role !== "user") {
-      console.log("Update task status failed: Unauthorized");
-      return rejectWithValue("Unauthorized");
+      return rejectWithValue(UserMessages.ADMIN_ONLY);
     }
 
     const task = taskManagement.tasks.find((t) => t._id === taskId);
     if (!task) {
-      console.log("Update task status failed: Task not found", { taskId });
-      return rejectWithValue("Task not found");
+      return rejectWithValue(TaskMessages.TASK_NOT_FOUND);
     }
     if (task.assignedTo?._id !== userId) {
-      console.log("Update task status failed: User have no access to update", {
-        taskId,
-      });
-      return rejectWithValue("user have no access");
+      return rejectWithValue(AuthMessages.USER_NOT_ACCESS);
     }
 
     const currentStatusIndex = STATUS_ORDER.indexOf(task.status);
     const newStatusIndex = STATUS_ORDER.indexOf(status);
     if (newStatusIndex <= currentStatusIndex && auth.user.role !== "user") {
-      console.log("Update task status failed: Cannot move status backward", {
-        taskId,
-        status,
-      });
-      return rejectWithValue("Cannot move status backward");
+      return rejectWithValue(TaskMessages.TASK_CANT_MOVE_BACKWARD);
     }
 
     try {
-      console.log("Updating task status", { taskId, status });
       const response = await api.patch<{ data: Task; message: string }>(
         `/tasks/${taskId}`,
         {
           status,
         }
       );
-      console.log("Task status updated", { taskId, status });
       return { taskId, status, message: response.data.message };
     } catch (error: unknown) {
-      let errorMessage = "Failed to update task status";
+      let errorMessage = TaskMessages.UPDATE_FAILED;
       if (error instanceof AxiosError) {
         errorMessage = error.response?.data?.message || errorMessage;
       }
-      console.error("Update task status error", {
-        taskId,
-        error: errorMessage,
-      });
       return rejectWithValue(errorMessage);
     }
   }

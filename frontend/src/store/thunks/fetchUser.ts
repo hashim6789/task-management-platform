@@ -3,6 +3,7 @@ import { RootState } from "..";
 import { api } from "@/lib";
 import { User } from "@/types";
 import { AxiosError } from "axios";
+import { UserMessages } from "@/constants";
 
 export const fetchUsers = createAsyncThunk(
   "userManagement/fetchUsers",
@@ -10,7 +11,7 @@ export const fetchUsers = createAsyncThunk(
     const state = getState() as RootState;
     const { userManagement, auth } = state;
     if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
-      return rejectWithValue("Unauthorized");
+      return rejectWithValue(UserMessages.ADMIN_ONLY);
     }
 
     try {
@@ -35,7 +36,7 @@ export const fetchUsers = createAsyncThunk(
       // return { data: sampleUsers, total: 20 };
       return response.data;
     } catch (error: unknown) {
-      let errorMessage = "Failed to fetch users";
+      let errorMessage = UserMessages.FETCH_USER_FAILED;
 
       if (error instanceof AxiosError) {
         errorMessage = error.response?.data?.message || errorMessage;

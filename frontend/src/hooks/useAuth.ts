@@ -5,11 +5,11 @@ import { ClientToServerEvents, ServerToClientEvents, User } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { axiosInstance } from "@/lib";
+import { axiosInstance, showToast, ToastType } from "@/lib";
 import { Socket } from "socket.io-client";
 import { disconnectSocket, initializeSocket } from "@/lib/socket";
 import { AxiosError } from "axios";
+import { AuthMessages } from "@/constants";
 
 interface AuthState {
   user: User | null;
@@ -35,7 +35,6 @@ export const useAuth = (): AuthState => {
 
       // Cleanup on unmount
       return () => {
-        console.debug("Cleaning up TaskManagement");
         disconnectSocket();
       };
     }
@@ -56,12 +55,22 @@ export const useAuth = (): AuthState => {
       } else {
         navigate("/user/dashboard");
       }
-      toast.success("Login successful!");
+
+      showToast({
+        message: AuthMessages.LOGIN_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.error || "Invalid email or password");
+        showToast({
+          message: error.response?.data.error || AuthMessages.INVALID_EMAIL,
+          type: ToastType.ERROR,
+        });
       } else {
-        toast.error("Invalid email or password");
+        showToast({
+          message: AuthMessages.INVALID_EMAIL,
+          type: ToastType.ERROR,
+        });
       }
     } finally {
       setIsLoading(false);
@@ -72,10 +81,13 @@ export const useAuth = (): AuthState => {
     try {
       const response = await axiosInstance.post("/auth/logout"); // Optional: Call logout endpoint
       dispatch(clearUser());
-      toast.success(response.data.message || "Logout successful!");
+      showToast({
+        message: response.data.message || AuthMessages.LOGOUT_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
-      toast.error("Logout failed!");
-      console.error("Logout error:", error);
+      showToast({ message: AuthMessages.LOGIN_FAILED, type: ToastType.ERROR });
+      console.error(AuthMessages.LOGIN_FAILED, error);
     }
   }, []);
 
