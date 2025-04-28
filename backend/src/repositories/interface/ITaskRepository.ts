@@ -1,11 +1,6 @@
 import { ITask } from "@/models";
 import { PaginatedData } from "@/types";
-import {
-  CreateTaskDTO,
-  TaskPopulatedDTO,
-  TaskQuery,
-  TaskStatusType,
-} from "@/types/task";
+import { TaskPopulatedDTO, TaskQuery, TaskStatusType } from "@/types/task";
 import mongoose from "mongoose";
 import { IBaseRepository } from "./IBaseRepository";
 
@@ -16,13 +11,12 @@ export interface ITaskRepository extends IBaseRepository<ITask> {
     query: TaskQuery,
     assignedBy: string
   ): Promise<PaginatedData<TaskPopulatedDTO>>;
-  // upateTask(task: CreateTaskDTO): Promise<ITask>;
   assignTaskToUser(
     id: mongoose.Types.ObjectId,
     data: Partial<ITask>
-  ): Promise<TaskPopulatedDTO | null>; //   findUserById(id: string): Promise<IUser | null>;
+  ): Promise<TaskPopulatedDTO | null>;
   changeStatusOfTask(
     id: mongoose.Types.ObjectId,
     status: TaskStatusType
-  ): Promise<TaskPopulatedDTO | null>; //   findUserById(id: string): Promise<IUser | null>;
+  ): Promise<TaskPopulatedDTO | null>;
 }

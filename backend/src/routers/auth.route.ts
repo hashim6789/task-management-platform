@@ -1,10 +1,6 @@
 import { AuthController } from "@/controllers/implementation";
 import { IAuthController } from "@/controllers/interface";
-import {
-  validate,
-  validateBlockedOrNot,
-  verifyTokenMiddleware,
-} from "@/middlewares";
+import { validate, verifyTokenMiddleware } from "@/middlewares";
 import UserModel from "@/models/user.model";
 import { UserRepository } from "@/repositories/implementation";
 import { IUserRepository } from "@/repositories/interface";

@@ -1,9 +1,8 @@
 import { IUserRepository } from "../interface/IUserRepository";
 import { BaseRepository } from "./base.repository";
-import { FilterQuery, Model, Types } from "mongoose";
-import { toObjectId } from "@/utils";
+import { FilterQuery, Model } from "mongoose";
 import { IUser } from "@/models";
-import { CreateUserDTO, PaginatedData, UserQuery } from "@/types";
+import { PaginatedData, UserQuery } from "@/types";
 
 export class UserRepository
   extends BaseRepository<IUser>
@@ -12,31 +11,6 @@ export class UserRepository
   constructor(model: Model<IUser>) {
     super(model);
   }
-  // async create(user: CreateUserDTO): Promise<IUser> {
-  //   try {
-  //     const newUser = new this.model({
-  //       username: user.username,
-  //       password: user.password,
-  //       email: user.email,
-  //     });
-
-  //     return await newUser.save();
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("Error creating user");
-  //   }
-  // }
-
-  // async updateUser(id: string, data: Partial<IUser>): Promise<IUser | null> {
-  //   try {
-  //     console.log(data);
-
-  //     return await this.update(toObjectId(id), data);
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("Error updating user");
-  //   }
-  // }
 
   async findAllByQuery(query: UserQuery): Promise<PaginatedData<IUser>> {
     const {
@@ -95,31 +69,4 @@ export class UserRepository
       throw new Error("Error finding user by email");
     }
   }
-
-  // async findByUsername(username: string): Promise<IUser | null> {
-  //   try {
-  //     return await this.findOne({ username });
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("Error while finding user by email");
-  //   }
-  // }
-
-  // async findUserById(id: string): Promise<IUser | null> {
-  //   try {
-  //     return await this.findById(new Types.ObjectId(id));
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("Error while finding user by Id");
-  //   }
-  // }
-
-  // async findOneWithUsernameOrEmail(value: string): Promise<IUser | null> {
-  //   try {
-  //     return await this.findByUsernameOrEmail(value);
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("errror while finding user by email,username");
-  //   }
-  // }
 }

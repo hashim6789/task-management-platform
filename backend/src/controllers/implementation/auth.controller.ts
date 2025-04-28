@@ -3,11 +3,6 @@ import { IAuthController } from "../interface";
 import { IAuthService } from "@/services/interface";
 import { deleteCookie, setCookie } from "@/utils/refresh-cookie.util";
 import { HttpResponse, HttpStatus } from "@/constants";
-// import {IAuthService} from "../../services/interface/IAuthService";
-// import {IAuthController} from "../interface/IAuthController";
-// import {HttpStatus} from "@/constants/status.constant";
-// import {HttpResponse} from "@/constants";
-// import {setCookie} from "@/utils/refresh-cookie.util";
 
 export class AuthController implements IAuthController {
   constructor(private _authService: IAuthService) {}

@@ -1,13 +1,8 @@
 import { ITask } from "@/models";
-import mongoose, { FilterQuery, Model, ObjectId } from "mongoose";
+import mongoose, { FilterQuery, Model } from "mongoose";
 import { BaseRepository } from "./base.repository";
 import { ITaskRepository } from "../interface";
-import {
-  CreateTaskDTO,
-  TaskPopulatedDTO,
-  TaskQuery,
-  TaskStatusType,
-} from "@/types/task";
+import { TaskPopulatedDTO, TaskQuery, TaskStatusType } from "@/types/task";
 import { PaginatedData, UserDTO } from "@/types";
 import { toObjectId } from "@/utils";
 
@@ -18,21 +13,6 @@ export class TaskRepository
   constructor(model: Model<ITask>) {
     super(model);
   }
-
-  // async createTask(task: CreateTaskDTO): Promise<ITask> {
-  //   try {
-  //     const newTask = new this.model({
-  //       title: task.title,
-  //       description: task.description,
-  //       dueDate: task.dueDate,
-  //     });
-
-  //     return await newTask.save();
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error("Error creating task");
-  //   }
-  // }
 
   async findAllByQuery(
     query: TaskQuery,

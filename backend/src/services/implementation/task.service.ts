@@ -60,13 +60,11 @@ export class TaskService implements ITaskService {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
     }
 
-    // Check if task is overdue (dueDate < now and not completed)
     const isOverdue =
       task.dueDate &&
       task.status !== "completed" &&
       new Date(task.dueDate) < new Date();
 
-    // For reassignment (task already assigned) or initial assignment when not overdue
     if (task.assignedTo && !isOverdue) {
       throw createHttpError(
         HttpStatus.BAD_REQUEST,
@@ -82,7 +80,6 @@ export class TaskService implements ITaskService {
       );
     }
 
-    // Set new due date for assignment/reassignment (2 days from now)
     const newDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
     const assignedTask = await this._taskRepository.assignTaskToUser(taskId, {
       assignedTo: userId,
@@ -129,7 +126,6 @@ export class TaskService implements ITaskService {
 
     switch (existingTask.status) {
       case "todo":
-        // The only valid status change for "todo" is to "in-progress"
         if (status !== "in-progress") {
           throw createHttpError(
             HttpStatus.BAD_REQUEST,
@@ -139,7 +135,6 @@ export class TaskService implements ITaskService {
         break;
 
       case "in-progress":
-        // The only valid status change for "in-progress" is to "completed"
         if (status !== "completed") {
           throw createHttpError(
             HttpStatus.BAD_REQUEST,
@@ -155,7 +150,6 @@ export class TaskService implements ITaskService {
             HttpResponse.CANT_CHANGE_STATUS
           );
         } else {
-          // "completed" status cannot be changed
           throw createHttpError(
             HttpStatus.BAD_REQUEST,
             HttpResponse.ALREADY_ON_STATUS
