@@ -54,11 +54,14 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:80"
+    env_file: ./frontend/.env
+    environment:
+      VITE_SERVER_ORIGIN: extra_value
     working_dir: /app/frontend
     volumes:
       - mt-frontend-dist:/app/frontend/dist
-    command: "serve -s dist"
+    command: "npm run dev"
 
   backend:
     container_name: mt-backend
