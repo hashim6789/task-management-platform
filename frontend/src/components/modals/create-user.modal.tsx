@@ -21,11 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { api, toastError, toastSuccess } from "@/lib";
+import { api, showToast, ToastType } from "@/lib";
 import { addUser } from "@/store/slices/userManagementSlice";
-import { USER_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
 import { userFormSchema, UserFormValues } from "@/schemas";
+import { UserMessages } from "@/constants";
 
 interface CreateUserModalProps {
   open: boolean;
@@ -50,13 +50,19 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
       const response = await api.post<User>("/users", values);
       dispatch(addUser(response.data));
 
-      toastSuccess(USER_MESSAGE.createSuccess);
+      showToast({
+        message: UserMessages.CREATE_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
 
       form.reset();
       onOpenChange(false);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || USER_MESSAGE.createFailed);
+      showToast({
+        message: err.response?.data?.message || UserMessages.CREATE_FAILED,
+        type: ToastType.ERROR,
+      });
     } finally {
       setIsSubmitting(false);
     }

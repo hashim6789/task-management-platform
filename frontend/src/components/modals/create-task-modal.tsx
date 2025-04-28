@@ -20,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppDispatch } from "@/store/hiook";
-import { TASK_MESSAGE } from "@/constants";
 import { AxiosError } from "axios";
 import { CalendarIcon } from "lucide-react";
 import {
@@ -32,8 +31,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { createTask } from "@/store/thunks/createTask";
-import { toastError, toastSuccess } from "@/lib";
+import { showToast, ToastType } from "@/lib";
 import { taskFormSchema, TaskFormValues } from "@/schemas";
+import { TaskMessages } from "@/constants";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -58,13 +58,19 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     try {
       await dispatch(createTask(values)).unwrap();
 
-      toastSuccess(TASK_MESSAGE.createSuccess);
+      showToast({
+        message: TaskMessages.CREATE_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
 
       form.reset();
       onOpenChange(false);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.createFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.CREATE_FAILED,
+        type: ToastType.ERROR,
+      });
     } finally {
       setIsSubmitting(false);
     }

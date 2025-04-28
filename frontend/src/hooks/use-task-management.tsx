@@ -24,7 +24,15 @@ import { updateTaskStatus } from "@/store/thunks/updateTaskStatus";
 import { assignTask } from "@/store/thunks/assignTask";
 import { fetchTasks } from "@/store/thunks/fetchTask";
 import { confirmAction, showToast, ToastType } from "@/lib";
-import { TaskMessages } from "@/constants";
+import { STATUS_COLORS, TaskMessages } from "@/constants";
+import { JSX } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface TableColumn {
+  key: string;
+  header: string;
+  render: (task?: Task) => JSX.Element;
+}
 
 export function useTaskManagement() {
   const dispatch = useAppDispatch();
@@ -33,6 +41,8 @@ export function useTaskManagement() {
   const taskManagement = useSelector(
     (state: RootState) => state.taskManagement
   );
+
+  const navigate = useNavigate();
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
     const confirmed = await confirmAction({
@@ -89,19 +99,21 @@ export function useTaskManagement() {
     }
   };
 
-  const columns = [
+  const columns: TableColumn[] = [
     {
       key: "title",
       header: "Title",
       render: (task?: Task) => (
-        <div className="font-medium">{task?.title ?? "N/A"}</div>
+        <div className="font-medium text-gray-900">{task?.title ?? "N/A"}</div>
       ),
     },
     {
       key: "description",
       header: "Description",
       render: (task?: Task) => (
-        <div className="truncate max-w-xs">{task?.description ?? "N/A"}</div>
+        <div className="truncate max-w-xs text-gray-600">
+          {task?.description ?? "N/A"}
+        </div>
       ),
     },
     {
@@ -116,7 +128,7 @@ export function useTaskManagement() {
                 handleUpdateTaskStatus(task._id, value)
               }
             >
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[140px] border-gray-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -130,26 +142,40 @@ export function useTaskManagement() {
                         STATUS_ORDER.indexOf(task.status)
                     }
                   >
-                    {status.charAt(0).toUpperCase() +
-                      status.slice(1).replace("-", " ")}
+                    <span
+                      className={`inline-block w-full ${STATUS_COLORS[status]} px-2 py-1 rounded`}
+                    >
+                      {status.charAt(0).toUpperCase() +
+                        status.slice(1).replace("-", " ")}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           ) : (
-            <div>{task.status}</div>
+            <div
+              className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                STATUS_COLORS[task.status]
+              }`}
+            >
+              {task.status.charAt(0).toUpperCase() +
+                task.status.slice(1).replace("-", " ")}
+            </div>
           )
         ) : (
-          <div>N/A</div>
+          <div className="text-gray-500">N/A</div>
         ),
     },
     {
       key: "assignedTo",
       header: "Assigned To",
       render: (task?: Task) =>
-        task && currentUser?.role === "admin" && taskManagement.isManagement ? (
+        task &&
+        currentUser?.role === "admin" &&
+        taskManagement.isManagement &&
+        !task.assignedTo ? (
           <Select
-            value={task.assignedTo?._id ?? "unassigned"}
+            value="unassigned"
             onValueChange={(userId: string) =>
               handleAssignTask(
                 task._id,
@@ -157,7 +183,7 @@ export function useTaskManagement() {
               )
             }
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] border-gray-300">
               <SelectValue placeholder="Select user" />
             </SelectTrigger>
             <SelectContent>
@@ -170,7 +196,9 @@ export function useTaskManagement() {
             </SelectContent>
           </Select>
         ) : (
-          <div>{task?.assignedTo?.username ?? "Unassigned"}</div>
+          <div className="text-gray-700">
+            {task?.assignedTo?.username ?? "Unassigned"}
+          </div>
         ),
     },
     {
@@ -178,7 +206,11 @@ export function useTaskManagement() {
       header: "Due Date",
       render: (task?: Task) => {
         const date = task?.dueDate ? new Date(task.dueDate) : null;
-        return <div>{date && isValid(date) ? format(date, "PP") : "N/A"}</div>;
+        return (
+          <div className="text-gray-600">
+            {date && isValid(date) ? format(date, "PP") : "N/A"}
+          </div>
+        );
       },
     },
     {
@@ -186,8 +218,25 @@ export function useTaskManagement() {
       header: "Created",
       render: (task?: Task) => {
         const date = task?.createdAt ? new Date(task.createdAt) : null;
-        return <div>{date && isValid(date) ? format(date, "PP") : "N/A"}</div>;
+        return (
+          <div className="text-gray-600">
+            {date && isValid(date) ? format(date, "PP") : "N/A"}
+          </div>
+        );
       },
+    },
+
+    {
+      key: "actions",
+      header: "Actions",
+      render: (task?: Task) => (
+        <button
+          onClick={() => navigate(`/tasks/${task?._id}`)}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          View
+        </button>
+      ),
     },
   ];
 
