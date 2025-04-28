@@ -16,10 +16,8 @@ import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { ErrorBoundary } from "@/components/common/error-boundary";
 import { useAppDispatch } from "@/store/hiook";
 import { fetchTasks } from "@/store/thunks/fetchTask";
-import { assignTask } from "@/store/thunks/assignTask";
 import { fetchUsers } from "@/store/thunks";
 import { Role } from "@/types";
-import { confirmAction, toastError, toastSuccess } from "@/lib";
 
 interface TaskManagementProps {
   role: Role;
@@ -46,6 +44,7 @@ export function TaskManagement({ role }: TaskManagementProps) {
     loading,
     error,
     columns,
+    assignTask,
     updateTaskStatus,
     setSearch,
     setStatusFilter,
@@ -77,17 +76,6 @@ export function TaskManagement({ role }: TaskManagementProps) {
       if (isAdmin) {
         dispatch(fetchUsers());
       }
-
-      // // Initialize and connect Socket.IO
-      // const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-      //   initializeSocket(user._id, dispatch);
-      // socket.connect();
-
-      // // Cleanup on unmount
-      // return () => {
-      //   console.debug("Cleaning up TaskManagement");
-      //   disconnectSocket();
-      // };
     }
   }, [dispatch, isAuthenticated, isAdmin, user]);
 
@@ -175,22 +163,29 @@ export function TaskManagement({ role }: TaskManagementProps) {
               key={task._id}
               task={task}
               onUpdateStatus={updateTaskStatus}
-              onAssignUser={async (taskId, userId) => {
-                const confirmed = await confirmAction({
-                  title: "Assign Task",
-                  text: "Do you want to assign this task to the selected user?",
-                  confirmButtonText: "Assign",
-                });
+              // onAssignUser={async (taskId, userId) => {
+              //   const confirmed = await confirmAction({
+              //     title: "Assign Task",
+              //     text: "Do you want to assign this task to the selected user?",
+              //     confirmButtonText: "Assign",
+              //   });
 
-                if (confirmed) {
-                  try {
-                    await dispatch(assignTask({ taskId, userId }));
-                    toastSuccess("Task assigned successfully");
-                  } catch {
-                    toastError("Failed to assign task");
-                  }
-                }
-              }}
+              //   if (confirmed) {
+              //     try {
+              //       await dispatch(assignTask({ taskId, userId }));
+              //       showToast({
+              //         message: TaskMessages.ASSIGN_SUCCESS,
+              //         type: ToastType.SUCCESS,
+              //       });
+              //     } catch {
+              //       showToast({
+              //         message: TaskMessages.ASSIGN_FAILED,
+              //         type: ToastType.ERROR,
+              //       });
+              //     }
+              //   }
+              // }}
+              onAssignUser={assignTask}
               isAdmin={isAdmin}
               users={users}
               isManagement

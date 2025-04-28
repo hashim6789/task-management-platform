@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { STATUS_COLORS } from "@/constants";
 
 interface TaskCardProps {
   task: Task;
@@ -28,46 +29,71 @@ export const TaskCard = memo(function TaskCard({
   users = [], // Default empty array to prevent errors
 }: TaskCardProps) {
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  console.log("task", task);
+  const createdAt = task.createdAt ? new Date(task.createdAt) : null;
+  const isOverdue =
+    dueDate &&
+    isValid(dueDate) &&
+    dueDate < new Date() &&
+    task.status !== "completed";
 
   const renderStatus = () => {
-    if (!isAdmin) {
-      if (isManagement) {
-        return (
-          <Select
-            value={task.status}
-            onValueChange={(value: TaskStatus) =>
-              onUpdateStatus?.(task._id, value)
+    if (!task) {
+      return <div className="text-gray-500">N/A</div>;
+    }
+
+    const isUser = !isAdmin;
+
+    if (isUser && isManagement) {
+      return (
+        <Select
+          value={task.status}
+          onValueChange={(value: TaskStatus) => {
+            if (onUpdateStatus) {
+              onUpdateStatus(task._id, value);
             }
-          >
-            <SelectTrigger className="w-[140px] inline-flex">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_ORDER.map((status) => (
-                <SelectItem
-                  key={status}
-                  value={status}
-                  disabled={
-                    !isAdmin &&
-                    STATUS_ORDER.indexOf(status) <=
-                      STATUS_ORDER.indexOf(task.status)
-                  }
+          }}
+        >
+          <SelectTrigger className="w-[140px] border-gray-300">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_ORDER.map((status) => (
+              <SelectItem
+                key={status}
+                value={status}
+                disabled={
+                  isAdmin &&
+                  STATUS_ORDER.indexOf(status) <=
+                    STATUS_ORDER.indexOf(task.status)
+                }
+              >
+                <span
+                  className={`inline-block w-full ${STATUS_COLORS[status]} px-2 py-1 rounded`}
                 >
                   {status.charAt(0).toUpperCase() +
                     status.slice(1).replace("-", " ")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
     }
-    return <span>{task.status}</span>;
+
+    return (
+      <div
+        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+          STATUS_COLORS[task.status]
+        }`}
+      >
+        {task.status.charAt(0).toUpperCase() +
+          task.status.slice(1).replace("-", " ")}
+      </div>
+    );
   };
 
   const renderAssignedUser = () => {
-    if (isManagement) {
+    if (task && isAdmin && isManagement && (!task.assignedTo || isOverdue)) {
       return (
         <Select
           value={task.assignedTo?._id ?? "unassigned"}
@@ -75,7 +101,7 @@ export const TaskCard = memo(function TaskCard({
             onAssignUser?.(task._id, userId === "unassigned" ? null : userId)
           }
         >
-          <SelectTrigger className="w-[140px] inline-flex">
+          <SelectTrigger className="w-[140px] border-gray-300">
             <SelectValue placeholder="Select user" />
           </SelectTrigger>
           <SelectContent>
@@ -88,31 +114,62 @@ export const TaskCard = memo(function TaskCard({
           </SelectContent>
         </Select>
       );
-    } else {
-      return <span>{task.assignedTo?.username || "Unassigned"}</span>;
     }
+    return (
+      <div className="text-gray-700">
+        {task?.assignedTo?.username ?? "Unassigned"}
+      </div>
+    );
+  };
+
+  const renderDueDate = () => {
+    return (
+      <div
+        className={`text-gray-600 ${
+          isOverdue ? "text-red-600 font-medium" : ""
+        }`}
+      >
+        {dueDate && isValid(dueDate) ? (
+          <>
+            {format(dueDate, "PP")}
+            {isOverdue && (
+              <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                Overdue
+              </span>
+            )}
+          </>
+        ) : (
+          "Not Set"
+        )}
+      </div>
+    );
   };
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
-        <CardTitle className="text-lg">{task.title || "N/A"}</CardTitle>
+        <CardTitle className="text-lg font-medium text-gray-900">
+          {task.title ?? "N/A"}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p className="text-sm text-gray-600">{task.description || "N/A"}</p>
-        <p className="text-sm">
-          <span className="font-medium">Due:</span>{" "}
-          {dueDate && isValid(dueDate) ? format(dueDate, "PPP") : "N/A"}
-        </p>
+        <div className="truncate max-w-xs text-gray-600">
+          {task.description ?? "N/A"}
+        </div>
+        <div className="text-sm">
+          <span className="font-medium">Due:</span> {renderDueDate()}
+        </div>
         <div className="text-sm">
           <span className="font-medium">Status:</span> {renderStatus()}
         </div>
-        {isAdmin && (
-          <div className="text-sm">
-            <span className="font-medium">Assigned To:</span>{" "}
-            {renderAssignedUser()}
-          </div>
-        )}
+        <div className="text-sm">
+          <span className="font-medium">Assigned To:</span>{" "}
+          {renderAssignedUser()}
+        </div>
+        <div className="text-sm">
+          <span className="font-medium">Created:</span>{" "}
+          {createdAt && isValid(createdAt) ? format(createdAt, "PP") : "N/A"}
+        </div>
       </CardContent>
     </Card>
   );

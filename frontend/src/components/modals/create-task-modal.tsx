@@ -21,15 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppDispatch } from "@/store/hiook";
 import { AxiosError } from "axios";
-// import { CalendarIcon } from "lucide-react";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
-// import { Calendar } from "@/components/ui/calendar";
-// import { cn } from "@/lib/utils";
-// import { format } from "date-fns";
 import { createTask } from "@/store/thunks/createTask";
 import { showToast, ToastType } from "@/lib";
 import { taskFormSchema, TaskFormValues } from "@/schemas";
@@ -49,7 +40,6 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     defaultValues: {
       title: "",
       description: "",
-      // dueDate: "",
     },
   });
 
@@ -114,49 +104,6 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
                 </FormItem>
               )}
             />
-            {/* <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Due Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={(date) =>
-                          field.onChange(date ? date.toISOString() : "")
-                        }
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
             <DialogFooter>
               <Button
                 type="button"
