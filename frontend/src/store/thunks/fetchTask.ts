@@ -33,9 +33,7 @@ export const fetchTasks = createAsyncThunk(
       );
       const sanitizedTasks = response.data.data.map((task) => ({
         ...task,
-        dueDate: isValid(new Date(task.dueDate))
-          ? task.dueDate
-          : new Date().toISOString(),
+
         createdAt: isValid(new Date(task.createdAt))
           ? task.createdAt
           : new Date().toISOString(),

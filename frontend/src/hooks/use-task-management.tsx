@@ -26,7 +26,7 @@ import { fetchTasks } from "@/store/thunks/fetchTask";
 import { confirmAction, showToast, ToastType } from "@/lib";
 import { STATUS_COLORS, TaskMessages } from "@/constants";
 import { JSX } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 interface TableColumn {
   key: string;
@@ -42,7 +42,7 @@ export function useTaskManagement() {
     (state: RootState) => state.taskManagement
   );
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
     const confirmed = await confirmAction({
@@ -169,13 +169,16 @@ export function useTaskManagement() {
     {
       key: "assignedTo",
       header: "Assigned To",
-      render: (task?: Task) =>
-        task &&
-        currentUser?.role === "admin" &&
-        taskManagement.isManagement &&
-        !task.assignedTo ? (
+      render: (task?: Task) => {
+        const isOverdue = task?.dueDate
+          ? new Date(task.dueDate) < new Date() && task.status !== "completed"
+          : false;
+        return task &&
+          currentUser?.role === "admin" &&
+          taskManagement.isManagement &&
+          (!task.assignedTo || isOverdue) ? (
           <Select
-            value="unassigned"
+            value={task.assignedTo?._id ?? "unassigned"}
             onValueChange={(userId: string) =>
               handleAssignTask(
                 task._id,
@@ -199,16 +202,38 @@ export function useTaskManagement() {
           <div className="text-gray-700">
             {task?.assignedTo?.username ?? "Unassigned"}
           </div>
-        ),
+        );
+      },
     },
     {
       key: "dueDate",
       header: "Due Date",
       render: (task?: Task) => {
         const date = task?.dueDate ? new Date(task.dueDate) : null;
+        console.log(task);
+        const isOverdue =
+          date &&
+          isValid(date) &&
+          date < new Date() &&
+          task?.status !== "completed";
         return (
-          <div className="text-gray-600">
-            {date && isValid(date) ? format(date, "PP") : "N/A"}
+          <div
+            className={`text-gray-600 ${
+              isOverdue ? "text-red-600 font-medium" : ""
+            }`}
+          >
+            {date && isValid(date) ? (
+              <>
+                {format(date, "PP")}
+                {isOverdue && (
+                  <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                    Overdue
+                  </span>
+                )}
+              </>
+            ) : (
+              "Not Set"
+            )}
           </div>
         );
       },
@@ -224,19 +249,6 @@ export function useTaskManagement() {
           </div>
         );
       },
-    },
-
-    {
-      key: "actions",
-      header: "Actions",
-      render: (task?: Task) => (
-        <button
-          onClick={() => navigate(`/tasks/${task?._id}`)}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          View
-        </button>
-      ),
     },
   ];
 

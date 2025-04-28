@@ -9,9 +9,9 @@ export const taskFormSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(500, "Description cannot exceed 500 characters"),
-  dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please select a valid date",
-  }),
+  // dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  //   message: "Please select a valid date",
+  // }),
 });
 
 export type TaskFormValues = z.infer<typeof taskFormSchema>;

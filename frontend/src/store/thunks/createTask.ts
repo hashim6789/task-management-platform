@@ -11,8 +11,8 @@ export const createTask = createAsyncThunk(
     taskData: {
       title: string;
       description: string;
-      dueDate: string;
-      userId?: string;
+      // dueDate: string;
+      // userId?: string;
     },
     { getState, rejectWithValue }
   ) => {

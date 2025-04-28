@@ -21,7 +21,7 @@ export interface Task {
   title: string;
   description: string | null;
   status: "todo" | "in-progress" | "completed";
-  dueDate: string;
+  dueDate?: string;
   createdAt: string;
   updatedAt: string;
   assignedTo: { _id: string; username: string } | null;

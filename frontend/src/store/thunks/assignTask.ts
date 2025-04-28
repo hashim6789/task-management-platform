@@ -30,7 +30,8 @@ export const assignTask = createAsyncThunk(
     } catch (error: unknown) {
       let errorMessage = TaskMessages.ASSIGN_FAILED;
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
+        console.log(error.response?.data.error);
+        errorMessage = error.response?.data?.error || errorMessage;
       }
       return rejectWithValue(errorMessage);
     }

@@ -21,15 +21,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppDispatch } from "@/store/hiook";
 import { AxiosError } from "axios";
-import { CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+// import { CalendarIcon } from "lucide-react";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
+// import { Calendar } from "@/components/ui/calendar";
+// import { cn } from "@/lib/utils";
+// import { format } from "date-fns";
 import { createTask } from "@/store/thunks/createTask";
 import { showToast, ToastType } from "@/lib";
 import { taskFormSchema, TaskFormValues } from "@/schemas";
@@ -49,7 +49,7 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     defaultValues: {
       title: "",
       description: "",
-      dueDate: "",
+      // dueDate: "",
     },
   });
 
@@ -114,7 +114,7 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="dueDate"
               render={({ field }) => (
@@ -156,7 +156,7 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             <DialogFooter>
               <Button
                 type="button"
