@@ -16,8 +16,8 @@ export const axiosInstance: AxiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    console.log("axios");
-    console.log("origin from env", env.SERVER_ORIGIN);
+    console.log("axioss");
+    console.log("origin from env forn vite", env.SERVER_ORIGIN);
     const token: string | null = localStorage.getItem("authToken");
     if (token) {
       config.headers = config.headers || {};
