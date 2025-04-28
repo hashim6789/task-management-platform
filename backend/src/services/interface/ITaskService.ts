@@ -20,15 +20,4 @@ export interface ITaskService {
     userId: string,
     status: TaskStatusType
   ): Promise<TaskPopulatedDTO | unknown>;
-
-  //   getBlogById(blogId: Types.ObjectId): Promise<IBlogModel>;
-  //   findBlogByAuthorId(authorId: Types.ObjectId, page: number): Promise<{blogs: IBlogModel[], totalPages: number}>;
-  //   getAllBlogs(page: number): Promise<{blogs: IBlogModel[], totalPages: number}>;
-  //   updateBlog(
-  //     blogId: Types.ObjectId,
-  //     authorId: Types.ObjectId,
-  //     updateData: Partial<IBlogModel>
-  //   ): Promise<IBlogModel>;
-  //   deleteBlog(blogId: Types.ObjectId, authorId: Types.ObjectId): Promise<IBlogModel>;
-  //   uploadImage(file: Express.Multer.File): Promise<string>
 }

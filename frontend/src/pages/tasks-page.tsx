@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useTaskManagement } from "@/hooks/use-task-management";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { RootState } from "@/store";
 import { setIsManagement } from "@/store/slices/taskSlice";
 import { TaskFilters } from "@/components/filters/task-filter";
@@ -45,7 +45,6 @@ export function TasksPage({ role }: TasksPageProps) {
     setPage,
     setLimit,
     setViewMode,
-    // updateTaskStatus,
     clearError,
     isAdmin,
   } = useTaskManagement();

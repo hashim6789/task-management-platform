@@ -3,6 +3,7 @@ import { RootState } from "..";
 import { api } from "@/lib";
 import { Task } from "@/types";
 import { AxiosError } from "axios";
+import { TaskMessages, UserMessages } from "@/constants";
 
 export const assignTask = createAsyncThunk(
   "taskManagement/assignTask",
@@ -13,28 +14,24 @@ export const assignTask = createAsyncThunk(
     const state = getState() as RootState;
     const { auth } = state;
     if (!auth.isAuthenticated || !auth.user || auth.user.role !== "admin") {
-      console.log("Assign task failed: Unauthorized");
-      return rejectWithValue("Unauthorized");
+      return rejectWithValue(UserMessages.ADMIN_ONLY);
     }
 
     try {
-      console.log("Assigning task", { taskId, userId });
       const response = await api.patch<Task>(`/tasks/${taskId}/assign`, {
         userId: userId || null,
       });
-      console.log("Task assigned", { taskId, userId });
       return {
         taskId,
         userId,
         assignedTo: response.data.assignedTo,
-        message: "The task assigned successfully",
+        message: TaskMessages.ASSIGN_SUCCESS,
       };
     } catch (error: unknown) {
-      let errorMessage = "Failed to assign task";
+      let errorMessage = TaskMessages.ASSIGN_FAILED;
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
+        errorMessage = error.response?.data?.error || errorMessage;
       }
-      console.error("Assign task error", { taskId, error: errorMessage });
       return rejectWithValue(errorMessage);
     }
   }

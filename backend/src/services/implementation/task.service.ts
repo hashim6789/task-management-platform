@@ -1,13 +1,3 @@
-// import { HttpResponse, HttpStatus } from "@/constants";
-// import { ITaskService } from "../interface/ITaskService";
-// import { ITaskModel } from "@/models/implementation/Task.model";
-// import { TaskRepository } from "@/repositories/implementation/Task.repository";
-// import { createHttpError, uploadToCloudinary } from "@/utils";
-// import { Types } from "mongoose";
-// import { IUserRepository } from "@/repositories/interface/IUserRepository";
-// import { ITaskRepository } from "@/repositories/interface/ITaskRepository";
-// import { v4 as uuidv4 } from "uuid";
-
 import { ITaskRepository, IUserRepository } from "@/repositories/interface";
 import { ITaskService } from "../interface";
 import { ITask } from "@/models";
@@ -36,10 +26,17 @@ export class TaskService implements ITaskService {
   }
 
   async createTask(data: CreateTaskDTO): Promise<ITask> {
-    const task = this._taskRepository.createTask(data);
-    // const io = getIo();
-    // if(io)
-    // io.of("/real").emit("task:created", task);
+    const existingTask = await this._taskRepository.findOne({
+      title: { $regex: new RegExp(`^${data.title}$`, "i") },
+    });
+
+    if (existingTask) {
+      throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        HttpResponse.TASK_ALREADY_EXIST
+      );
+    }
+    const task = this._taskRepository.create(data);
 
     return task;
   }
@@ -57,13 +54,45 @@ export class TaskService implements ITaskService {
     userId: string
   ): Promise<TaskPopulatedDTO | unknown> {
     const taskId = new mongoose.Types.ObjectId(id);
-    const task = await this._taskRepository.assignTaskToUser(taskId, userId);
+    const task = await this._taskRepository.findById(taskId);
+
     if (!task) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
     }
+
+    const isOverdue =
+      task.dueDate &&
+      task.status !== "completed" &&
+      new Date(task.dueDate) < new Date();
+
+    if (task.assignedTo && !isOverdue) {
+      throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        HttpResponse.TASK_ALREADY_ASSIGNED
+      );
+    }
+
+    const user = await this._userRepository.findById(userId);
+    if (!user || user.isBlocked) {
+      throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        HttpResponse.USER_BLOCKED_OR_NOT_FOUND
+      );
+    }
+
+    const newDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    const assignedTask = await this._taskRepository.assignTaskToUser(taskId, {
+      assignedTo: userId,
+      dueDate: newDueDate,
+    });
+
+    if (!assignedTask) {
+      throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
+    }
+
     const io = getIo();
-    if (io) io.of("/real").emit("task:assigned", task);
-    return task;
+    if (io) io.of("/real").emit("task:assigned", assignedTask);
+    return assignedTask;
   }
 
   async changeStatus(
@@ -77,6 +106,7 @@ export class TaskService implements ITaskService {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
     }
 
+    console.log(existingTask.assignedTo?._id.toString() === userId);
     if (
       existingTask.assignedTo &&
       existingTask.assignedTo._id.toString() !== userId
@@ -87,22 +117,50 @@ export class TaskService implements ITaskService {
       );
     }
 
-    switch (status) {
-      case "in-progress":
-        if (existingTask.status !== "todo") {
+    if (existingTask.status === status) {
+      throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        HttpResponse.ALREADY_ON_STATUS
+      );
+    }
+
+    switch (existingTask.status) {
+      case "todo":
+        if (status !== "in-progress") {
           throw createHttpError(
             HttpStatus.BAD_REQUEST,
-            HttpResponse.NO_ACCESS_RESOURCE
+            HttpResponse.ONLY_MOVE_TODO_TO_INPROGRESS
           );
         }
         break;
-      case "completed":
-        if (existingTask.status !== "in-progress") {
+
+      case "in-progress":
+        if (status !== "completed") {
           throw createHttpError(
             HttpStatus.BAD_REQUEST,
-            HttpResponse.NO_ACCESS_RESOURCE
+            HttpResponse.ONLY_MOVE_INPROGRESS_COMPLETED
           );
         }
+        break;
+
+      case "completed":
+        if (status !== "completed") {
+          throw createHttpError(
+            HttpStatus.BAD_REQUEST,
+            HttpResponse.CANT_CHANGE_STATUS
+          );
+        } else {
+          throw createHttpError(
+            HttpStatus.BAD_REQUEST,
+            HttpResponse.ALREADY_ON_STATUS
+          );
+        }
+
+      default:
+        throw createHttpError(
+          HttpStatus.BAD_REQUEST,
+          HttpResponse.INVALID_TASK_STATUS
+        );
     }
 
     const updatedTask = await this._taskRepository.changeStatusOfTask(

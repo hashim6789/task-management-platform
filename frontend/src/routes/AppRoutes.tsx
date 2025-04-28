@@ -7,7 +7,7 @@ import { AdminRoutes } from "./AdminRoutes";
 import { UserRoutes } from "./UserRoutes";
 import { RootState } from "../store";
 import { useEffect } from "react";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { fetchMe } from "@/store/thunks";
 import {
   LoginPage,

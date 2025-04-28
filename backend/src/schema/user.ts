@@ -5,11 +5,11 @@ export const createUserSchema = z
   .object({
     username: z
       .string()
-      .min(1, HttpResponse.REQUIRED_TITLE)
+      .min(1, HttpResponse.USERNAME_REQUIRED)
       .max(200, "Title must not exceed 200 characters"),
     email: z
       .string()
-      .min(1, HttpResponse.REQUIRED_CONTENT)
+      .min(1, HttpResponse.EMAIL_REQUIRED)
       .max(5000, "Content must not exceed 5000 characters"),
     // thumbnail: z.string().url("Thumbnail must be a valid URL").optional(),
     // tags: z.array(z.string()).optional(),

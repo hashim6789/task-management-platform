@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
 import { Task, TaskStatus, STATUS_ORDER } from "@/types";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { AxiosError } from "axios";
 import {
   setSearch,
@@ -13,7 +13,6 @@ import {
   setViewMode,
   clearError,
 } from "@/store/slices/taskSlice";
-import { TASK_MESSAGE } from "@/constants";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,16 @@ import {
 import { updateTaskStatus } from "@/store/thunks/updateTaskStatus";
 import { assignTask } from "@/store/thunks/assignTask";
 import { fetchTasks } from "@/store/thunks/fetchTask";
-import { confirmAction, toastError, toastSuccess } from "@/lib";
+import { confirmAction, showToast, ToastType } from "@/lib";
+import { STATUS_COLORS, TaskMessages } from "@/constants";
+import { JSX } from "react";
+// import { useNavigate } from "react-router-dom";
+
+interface TableColumn {
+  key: string;
+  header: string;
+  render: (task?: Task) => JSX.Element;
+}
 
 export function useTaskManagement() {
   const dispatch = useAppDispatch();
@@ -34,11 +42,7 @@ export function useTaskManagement() {
     (state: RootState) => state.taskManagement
   );
 
-  // cosnt {search, statusFilter, sortBy, sortOrder, page, limit}= taskManagement
-
-  // Filter valid tasks
-  // const validTasks = taskManagement.tasks.filter(isValidTask);
-  // console.log("Valid Tasks in useTaskManagement:", validTasks);
+  // const navigate = useNavigate();
 
   const handleUpdateTaskStatus = async (taskId: string, status: TaskStatus) => {
     const confirmed = await confirmAction({
@@ -55,10 +59,16 @@ export function useTaskManagement() {
         updateTaskStatus({ taskId, status, userId })
       ).unwrap();
 
-      toastSuccess(result.message || TASK_MESSAGE.updateSuccess);
+      showToast({
+        message: result.message || TaskMessages.UPDATE_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.updateFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.UPDATE_FAILED,
+        type: ToastType.ERROR,
+      });
     }
   };
 
@@ -76,26 +86,34 @@ export function useTaskManagement() {
         assignTask({ taskId, userId: userId ?? null })
       ).unwrap();
 
-      toastSuccess(result.message || TASK_MESSAGE.assignSuccess);
+      showToast({
+        message: result.message || TaskMessages.ASSIGN_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.assignFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.ASSIGN_FAILED,
+        type: ToastType.ERROR,
+      });
     }
   };
 
-  const columns = [
+  const columns: TableColumn[] = [
     {
       key: "title",
       header: "Title",
       render: (task?: Task) => (
-        <div className="font-medium">{task?.title ?? "N/A"}</div>
+        <div className="font-medium text-gray-900">{task?.title ?? "N/A"}</div>
       ),
     },
     {
       key: "description",
       header: "Description",
       render: (task?: Task) => (
-        <div className="truncate max-w-xs">{task?.description ?? "N/A"}</div>
+        <div className="truncate max-w-xs text-gray-600">
+          {task?.description ?? "N/A"}
+        </div>
       ),
     },
     {
@@ -110,7 +128,7 @@ export function useTaskManagement() {
                 handleUpdateTaskStatus(task._id, value)
               }
             >
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-[140px] border-gray-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -124,24 +142,41 @@ export function useTaskManagement() {
                         STATUS_ORDER.indexOf(task.status)
                     }
                   >
-                    {status.charAt(0).toUpperCase() +
-                      status.slice(1).replace("-", " ")}
+                    <span
+                      className={`inline-block w-full ${STATUS_COLORS[status]} px-2 py-1 rounded`}
+                    >
+                      {status.charAt(0).toUpperCase() +
+                        status.slice(1).replace("-", " ")}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           ) : (
-            <div>{task.status}</div>
+            <div
+              className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                STATUS_COLORS[task.status]
+              }`}
+            >
+              {task.status.charAt(0).toUpperCase() +
+                task.status.slice(1).replace("-", " ")}
+            </div>
           )
         ) : (
-          <div>N/A</div>
+          <div className="text-gray-500">N/A</div>
         ),
     },
     {
       key: "assignedTo",
       header: "Assigned To",
-      render: (task?: Task) =>
-        task && currentUser?.role === "admin" && taskManagement.isManagement ? (
+      render: (task?: Task) => {
+        const isOverdue = task?.dueDate
+          ? new Date(task.dueDate) < new Date() && task.status !== "completed"
+          : false;
+        return task &&
+          currentUser?.role === "admin" &&
+          taskManagement.isManagement &&
+          (!task.assignedTo || isOverdue) ? (
           <Select
             value={task.assignedTo?._id ?? "unassigned"}
             onValueChange={(userId: string) =>
@@ -151,7 +186,7 @@ export function useTaskManagement() {
               )
             }
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] border-gray-300">
               <SelectValue placeholder="Select user" />
             </SelectTrigger>
             <SelectContent>
@@ -164,15 +199,42 @@ export function useTaskManagement() {
             </SelectContent>
           </Select>
         ) : (
-          <div>{task?.assignedTo?.username ?? "Unassigned"}</div>
-        ),
+          <div className="text-gray-700">
+            {task?.assignedTo?.username ?? "Unassigned"}
+          </div>
+        );
+      },
     },
     {
       key: "dueDate",
       header: "Due Date",
       render: (task?: Task) => {
         const date = task?.dueDate ? new Date(task.dueDate) : null;
-        return <div>{date && isValid(date) ? format(date, "PP") : "N/A"}</div>;
+        const isOverdue =
+          date &&
+          isValid(date) &&
+          date < new Date() &&
+          task?.status !== "completed";
+        return (
+          <div
+            className={`text-gray-600 ${
+              isOverdue ? "text-red-600 font-medium" : ""
+            }`}
+          >
+            {date && isValid(date) ? (
+              <>
+                {format(date, "PP")}
+                {isOverdue && (
+                  <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                    Overdue
+                  </span>
+                )}
+              </>
+            ) : (
+              "Not Set"
+            )}
+          </div>
+        );
       },
     },
     {
@@ -180,7 +242,11 @@ export function useTaskManagement() {
       header: "Created",
       render: (task?: Task) => {
         const date = task?.createdAt ? new Date(task.createdAt) : null;
-        return <div>{date && isValid(date) ? format(date, "PP") : "N/A"}</div>;
+        return (
+          <div className="text-gray-600">
+            {date && isValid(date) ? format(date, "PP") : "N/A"}
+          </div>
+        );
       },
     },
   ];

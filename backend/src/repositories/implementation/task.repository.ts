@@ -1,13 +1,8 @@
 import { ITask } from "@/models";
-import mongoose, { FilterQuery, Model, ObjectId } from "mongoose";
-import { BaseRepository } from "../base.repository";
+import mongoose, { FilterQuery, Model } from "mongoose";
+import { BaseRepository } from "./base.repository";
 import { ITaskRepository } from "../interface";
-import {
-  CreateTaskDTO,
-  TaskPopulatedDTO,
-  TaskQuery,
-  TaskStatusType,
-} from "@/types/task";
+import { TaskPopulatedDTO, TaskQuery, TaskStatusType } from "@/types/task";
 import { PaginatedData, UserDTO } from "@/types";
 import { toObjectId } from "@/utils";
 
@@ -17,21 +12,6 @@ export class TaskRepository
 {
   constructor(model: Model<ITask>) {
     super(model);
-  }
-
-  async createTask(task: CreateTaskDTO): Promise<ITask> {
-    try {
-      const newTask = new this.model({
-        title: task.title,
-        description: task.description,
-        dueDate: task.dueDate,
-      });
-
-      return await newTask.save();
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error creating task");
-    }
   }
 
   async findAllByQuery(
@@ -93,24 +73,26 @@ export class TaskRepository
         title: task.title,
         description: task.description,
         status: task.status,
-        assignedTo: assignedTo, // Safely cast to UserDTO
+        assignedTo: assignedTo,
+        dueDate: task.dueDate,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       };
     });
 
     const total = await this.model.countDocuments(filter);
+    console.log(data, total);
 
     return { data, total };
   }
 
   async assignTaskToUser(
     id: mongoose.Types.ObjectId,
-    userId: string
+    data: Partial<ITask>
   ): Promise<TaskPopulatedDTO | null> {
     try {
       const assignedTask = await this.model
-        .findByIdAndUpdate(id, { assignedTo: userId }, { new: true })
+        .findByIdAndUpdate(id, data, { new: true })
         .populate({
           path: "assignedTo",
           select: "username email createdAt updatedAt",
@@ -183,6 +165,7 @@ export function toTaskPopulatedDTO(
     status: task.status,
     assignedTo: task.assignedTo,
     createdAt: task.createdAt,
+    dueDate: task.dueDate,
     updatedAt: task.updatedAt,
   };
 }

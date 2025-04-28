@@ -13,11 +13,11 @@ import {
 } from "@/store/slices/userManagementSlice";
 import { Button } from "@/components/ui/button";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { AxiosError } from "axios";
-import { USER_MESSAGE } from "@/constants";
+import { UserMessages } from "@/constants";
 import { fetchUsers, toggleBlockUser } from "@/store/thunks";
-import { confirmAction, toastError, toastSuccess } from "@/lib";
+import { confirmAction, showToast, ToastType } from "@/lib";
 
 export function useUserManagement() {
   const dispatch = useAppDispatch();
@@ -28,7 +28,7 @@ export function useUserManagement() {
 
   const handleToggleBlockUser = async (userId: string, isBlocked: boolean) => {
     if (!currentUser || currentUser.role !== "admin") {
-      toastError(USER_MESSAGE.unauthorizedDesc);
+      showToast({ message: UserMessages.ADMIN_ONLY });
       return;
     }
 
@@ -47,13 +47,19 @@ export function useUserManagement() {
         toggleBlockUser({ userId, isBlocked })
       ).unwrap();
 
-      toastSuccess(
-        result.message ||
-          `User ${isBlocked ? "unblocked" : "blocked"} successfully`
-      );
+      showToast({
+        message:
+          result.message || isBlocked
+            ? UserMessages.USER_BLOCKED
+            : UserMessages.USER_UNBLOCKED,
+        type: ToastType.SUCCESS,
+      });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || USER_MESSAGE.updateFailed);
+      showToast({
+        message: err.response?.data?.message || UserMessages.UPDATE_FAILED,
+        type: ToastType.ERROR,
+      });
     }
   };
 

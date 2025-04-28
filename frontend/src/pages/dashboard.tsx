@@ -15,7 +15,7 @@ import { PieChart, Pie, Cell, Legend as PieLegend } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RootState } from "@/store";
 import { fetchTasks, fetchUsers } from "@/store/thunks";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 
 export type TaskStatus = "todo" | "in-progress" | "completed";
 

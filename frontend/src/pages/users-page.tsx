@@ -11,7 +11,7 @@ import { UserTable } from "@/components/tables/user-table";
 import { UserCard } from "@/components/cards/user-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { CreateUserModal } from "@/components/modals/create-user.modal";
 import { fetchUsers } from "@/store/thunks";
 

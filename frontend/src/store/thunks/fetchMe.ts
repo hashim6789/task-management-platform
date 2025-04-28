@@ -1,3 +1,4 @@
+import { UserMessages } from "@/constants";
 import { axiosInstance } from "@/lib";
 import { User } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -11,10 +12,10 @@ export const fetchMe = createAsyncThunk(
       const response = await axiosInstance.get<User>("/auth/me");
       return response.data;
     } catch (error: unknown) {
-      let errorMessage = "Failed to fetch user data";
+      let errorMessage = UserMessages.FETCH_USER_FAILED;
 
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
+        errorMessage = error.response?.data?.error || errorMessage;
       }
 
       return rejectWithValue(errorMessage);

@@ -14,12 +14,10 @@ import { TaskCard } from "@/components/cards/task-card";
 import { PaginationControls } from "@/components/common/pagination";
 import { CreateTaskModal } from "@/components/modals/create-task-modal";
 import { ErrorBoundary } from "@/components/common/error-boundary";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { fetchTasks } from "@/store/thunks/fetchTask";
-import { assignTask } from "@/store/thunks/assignTask";
 import { fetchUsers } from "@/store/thunks";
 import { Role } from "@/types";
-import { confirmAction, toastError, toastSuccess } from "@/lib";
 
 interface TaskManagementProps {
   role: Role;
@@ -46,6 +44,7 @@ export function TaskManagement({ role }: TaskManagementProps) {
     loading,
     error,
     columns,
+    assignTask,
     updateTaskStatus,
     setSearch,
     setStatusFilter,
@@ -60,40 +59,19 @@ export function TaskManagement({ role }: TaskManagementProps) {
   // Memoize tasks to prevent unnecessary re-renders
   const stableTasks = useMemo(() => tasks.filter((task) => task._id), [tasks]);
 
-  console.debug("Rendering TaskManagement", {
-    taskCount: stableTasks.length,
-    viewMode,
-  });
-
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.debug("Initializing TaskManagement", {
-        userId: user._id,
-        isAdmin,
-      });
       dispatch(fetchTasks());
       dispatch(setIsManagement(true));
 
       if (isAdmin) {
         dispatch(fetchUsers());
       }
-
-      // // Initialize and connect Socket.IO
-      // const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-      //   initializeSocket(user._id, dispatch);
-      // socket.connect();
-
-      // // Cleanup on unmount
-      // return () => {
-      //   console.debug("Cleaning up TaskManagement");
-      //   disconnectSocket();
-      // };
     }
   }, [dispatch, isAuthenticated, isAdmin, user]);
 
   useEffect(() => {
     if (error) {
-      console.debug("Error occurred", { error });
       const timer = setTimeout(() => clearError(), 5000);
       return () => clearTimeout(timer);
     }
@@ -108,13 +86,11 @@ export function TaskManagement({ role }: TaskManagementProps) {
   }
 
   if (authError || !isAuthenticated) {
-    console.debug("Redirecting to login", { authError, isAuthenticated });
     navigate("/login");
     return null;
   }
 
   if (role === "admin" && !isAdmin) {
-    console.debug("Redirecting to home: Not admin");
     navigate("/");
     return null;
   }
@@ -175,22 +151,7 @@ export function TaskManagement({ role }: TaskManagementProps) {
               key={task._id}
               task={task}
               onUpdateStatus={updateTaskStatus}
-              onAssignUser={async (taskId, userId) => {
-                const confirmed = await confirmAction({
-                  title: "Assign Task",
-                  text: "Do you want to assign this task to the selected user?",
-                  confirmButtonText: "Assign",
-                });
-
-                if (confirmed) {
-                  try {
-                    await dispatch(assignTask({ taskId, userId }));
-                    toastSuccess("Task assigned successfully");
-                  } catch {
-                    toastError("Failed to assign task");
-                  }
-                }
-              }}
+              onAssignUser={assignTask}
               isAdmin={isAdmin}
               users={users}
               isManagement

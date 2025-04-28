@@ -19,21 +19,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAppDispatch } from "@/store/hiook";
-import { TASK_MESSAGE } from "@/constants";
+import { useAppDispatch } from "@/store/hook";
 import { AxiosError } from "axios";
-import { CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { createTask } from "@/store/thunks/createTask";
-import { toastError, toastSuccess } from "@/lib";
+import { showToast, ToastType } from "@/lib";
 import { taskFormSchema, TaskFormValues } from "@/schemas";
+import { TaskMessages } from "@/constants";
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -49,7 +40,6 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     defaultValues: {
       title: "",
       description: "",
-      dueDate: "",
     },
   });
 
@@ -58,13 +48,19 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
     try {
       await dispatch(createTask(values)).unwrap();
 
-      toastSuccess(TASK_MESSAGE.createSuccess);
+      showToast({
+        message: TaskMessages.CREATE_SUCCESS,
+        type: ToastType.SUCCESS,
+      });
 
       form.reset();
       onOpenChange(false);
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
-      toastError(err.response?.data?.message || TASK_MESSAGE.createFailed);
+      showToast({
+        message: err.response?.data?.message || TaskMessages.CREATE_FAILED,
+        type: ToastType.ERROR,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -104,49 +100,6 @@ export function CreateTaskModal({ open, onOpenChange }: CreateTaskModalProps) {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Due Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(new Date(field.value), "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : undefined
-                        }
-                        onSelect={(date) =>
-                          field.onChange(date ? date.toISOString() : "")
-                        }
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
