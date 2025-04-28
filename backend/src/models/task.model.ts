@@ -1,12 +1,12 @@
-import { model, Schema, Document, Types, ObjectId } from "mongoose";
+import mongoose, { model, Schema, Document, ObjectId } from "mongoose";
 
 export interface ITask extends Document {
   _id: string;
   title: string;
   description: string;
   status: "todo" | "in-progress" | "completed";
-  assignedTo: ObjectId;
-  dueDate: Date;
+  assignedTo?: ObjectId | string | null;
+  dueDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,7 +22,7 @@ const taskSchema = new Schema<ITask>(
       required: true,
     },
     assignedTo: {
-      type: Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
     },
     dueDate: {

@@ -21,15 +21,16 @@ export interface TaskPopulatedDTO {
   description: string;
   status: "todo" | "in-progress" | "completed";
   assignedTo?: UserDTO;
+  dueDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Task {
-  _id: string;
-  title: string;
-  description: string;
-  status: "todo" | "in-progress" | "completed";
-  assignedTo: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// export interface Task {
+//   _id: string;
+//   title: string;
+//   description: string;
+//   status: "todo" | "in-progress" | "completed";
+//   assignedTo: string;
+//   createdAt: Date;
+//   updatedAt: Date;
+// }

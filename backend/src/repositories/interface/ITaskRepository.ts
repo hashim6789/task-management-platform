@@ -16,10 +16,10 @@ export interface ITaskRepository extends IBaseRepository<ITask> {
     query: TaskQuery,
     assignedBy: string
   ): Promise<PaginatedData<TaskPopulatedDTO>>;
-  // createTask(task: CreateTaskDTO): Promise<ITask>;
+  // upateTask(task: CreateTaskDTO): Promise<ITask>;
   assignTaskToUser(
     id: mongoose.Types.ObjectId,
-    userId: string
+    data: Partial<ITask>
   ): Promise<TaskPopulatedDTO | null>; //   findUserById(id: string): Promise<IUser | null>;
   changeStatusOfTask(
     id: mongoose.Types.ObjectId,

@@ -1,13 +1,3 @@
-// import { HttpResponse, HttpStatus } from "@/constants";
-// import { ITaskService } from "../interface/ITaskService";
-// import { ITaskModel } from "@/models/implementation/Task.model";
-// import { TaskRepository } from "@/repositories/implementation/Task.repository";
-// import { createHttpError, uploadToCloudinary } from "@/utils";
-// import { Types } from "mongoose";
-// import { IUserRepository } from "@/repositories/interface/IUserRepository";
-// import { ITaskRepository } from "@/repositories/interface/ITaskRepository";
-// import { v4 as uuidv4 } from "uuid";
-
 import { ITaskRepository, IUserRepository } from "@/repositories/interface";
 import { ITaskService } from "../interface";
 import { ITask } from "@/models";
@@ -37,7 +27,7 @@ export class TaskService implements ITaskService {
 
   async createTask(data: CreateTaskDTO): Promise<ITask> {
     const existingTask = await this._taskRepository.findOne({
-      title: { $regex: new RegExp(data.title, "i") },
+      title: { $regex: new RegExp(`^${data.title}$`, "i") },
     });
 
     if (existingTask) {
@@ -47,9 +37,6 @@ export class TaskService implements ITaskService {
       );
     }
     const task = this._taskRepository.create(data);
-    // const io = getIo();
-    // if(io)
-    // io.of("/real").emit("task:created", task);
 
     return task;
   }
@@ -68,8 +55,19 @@ export class TaskService implements ITaskService {
   ): Promise<TaskPopulatedDTO | unknown> {
     const taskId = new mongoose.Types.ObjectId(id);
     const task = await this._taskRepository.findById(taskId);
-    console.log("existing task", task);
-    if (!task || (task.assignedTo && task.assignedTo !== null)) {
+
+    if (!task) {
+      throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
+    }
+
+    // Check if task is overdue (dueDate < now and not completed)
+    const isOverdue =
+      task.dueDate &&
+      task.status !== "completed" &&
+      new Date(task.dueDate) < new Date();
+
+    // For reassignment (task already assigned) or initial assignment when not overdue
+    if (task.assignedTo && !isOverdue) {
       throw createHttpError(
         HttpStatus.BAD_REQUEST,
         HttpResponse.TASK_ALREADY_ASSIGNED
@@ -83,13 +81,18 @@ export class TaskService implements ITaskService {
         HttpResponse.USER_BLOCKED_OR_NOT_FOUND
       );
     }
-    const assignedTask = await this._taskRepository.assignTaskToUser(
-      taskId,
-      userId
-    );
+
+    // Set new due date for assignment/reassignment (2 days from now)
+    const newDueDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    const assignedTask = await this._taskRepository.assignTaskToUser(taskId, {
+      assignedTo: userId,
+      dueDate: newDueDate,
+    });
+
     if (!assignedTask) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.TASK_NOT_FOUND);
     }
+
     const io = getIo();
     if (io) io.of("/real").emit("task:assigned", assignedTask);
     return assignedTask;

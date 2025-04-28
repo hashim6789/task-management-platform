@@ -20,10 +20,10 @@ export const createTaskSchema = z
     // dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     //   message: "Please select a valid date",
     // }),
-    dueDate: z.coerce.date({
-      required_error: "Due Date is required",
-      invalid_type_error: "Due Date must be a valid date",
-    }),
+    // dueDate: z.coerce.date({
+    //   required_error: "Due Date is required",
+    //   invalid_type_error: "Due Date must be a valid date",
+    // }),
   })
   .strict();
 
