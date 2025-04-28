@@ -8,10 +8,6 @@ const ProtectedRoute = ({ role }: { role: Role }) => {
     (state: RootState) => state.auth
   );
 
-  console.log(isAuthenticated, isBlocked, user, user?.role, role);
-
-  //   const currentPath = window.location.pathname;
-
   // Redirect to the login page if not authenticated
   if (!isAuthenticated) {
     return <Navigate to={"/login"} replace />;
@@ -21,17 +17,6 @@ const ProtectedRoute = ({ role }: { role: Role }) => {
   if (isBlocked) {
     return <Navigate to="/blocked" replace />;
   }
-
-  //   if (isVerified && currentPath === `/${role}/otp`) {
-  //     return (
-  //       <Navigate to={role === "learner" ? "/" : `/${role}/dashboard`} replace />
-  //     );
-  //   }
-
-  //   // Redirect to the OTP page if the user is not verified
-  //   if (!isVerified && currentPath !== `/${role}/otp`) {
-  //     return <Navigate to={`/${role}/otp`} replace />;
-  //   }
 
   // Redirect to the correct dashboard if the role doesn't match
   if (user && user.role !== role) {

@@ -1,21 +1,6 @@
 export type PriorityType = "high" | "normal" | "low";
 export type StageType = "todo" | "in-progress" | "completed";
 
-// export interface Task {
-//   _id: string;
-//   title: string;
-//   description: string;
-//   date: string;
-//   priority: PriorityType;
-//   stage: StageType;
-//   assigneeId: string;
-//   assignee?: User;
-//   createdBy: string;
-//   isTrashed: boolean;
-//   createdAt: string;
-//   updatedAt: string;
-// }
-
 export interface Task {
   _id: string;
   title: string;

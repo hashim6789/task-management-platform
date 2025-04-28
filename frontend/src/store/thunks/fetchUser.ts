@@ -39,7 +39,7 @@ export const fetchUsers = createAsyncThunk(
       let errorMessage = UserMessages.FETCH_USER_FAILED;
 
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
+        errorMessage = error.response?.data?.error || errorMessage;
       }
 
       return rejectWithValue(errorMessage);

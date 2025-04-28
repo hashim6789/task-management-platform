@@ -46,7 +46,7 @@ export const fetchTasks = createAsyncThunk(
     } catch (error: unknown) {
       let errorMessage = TaskMessages.FETCH_TASK_FAILED;
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.message || errorMessage;
+        errorMessage = error.response?.data?.error || errorMessage;
       }
       return rejectWithValue(errorMessage);
     }

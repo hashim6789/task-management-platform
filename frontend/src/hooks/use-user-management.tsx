@@ -13,7 +13,7 @@ import {
 } from "@/store/slices/userManagementSlice";
 import { Button } from "@/components/ui/button";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { AxiosError } from "axios";
 import { UserMessages } from "@/constants";
 import { fetchUsers, toggleBlockUser } from "@/store/thunks";

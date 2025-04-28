@@ -44,12 +44,10 @@ const taskManagementSlice = createSlice({
     setSearch: (state, action: PayloadAction<string>) => {
       state.search = action.payload;
       state.page = 1;
-      console.log("Set search", { search: action.payload });
     },
     setStatusFilter: (state, action: PayloadAction<TaskStatus | "all">) => {
       state.statusFilter = action.payload;
       state.page = 1;
-      console.log("Set status filter", { statusFilter: action.payload });
     },
     setSort: (
       state,
@@ -57,32 +55,23 @@ const taskManagementSlice = createSlice({
     ) => {
       state.sortBy = action.payload.sortBy;
       state.sortOrder = action.payload.sortOrder;
-      console.log("Set sort", {
-        sortBy: action.payload.sortBy,
-        sortOrder: action.payload.sortOrder,
-      });
     },
     setPage: (state, action: PayloadAction<number>) => {
       state.page = action.payload;
-      console.log("Set page", { page: action.payload });
     },
     setLimit: (state, action: PayloadAction<number>) => {
       state.limit = action.payload;
       state.page = 1;
-      console.log("Set limit", { limit: action.payload });
     },
     setViewMode: (state, action: PayloadAction<"list" | "card">) => {
       state.viewMode = action.payload;
-      console.log("Set view mode", { viewMode: action.payload });
     },
     clearError: (state) => {
       state.error = null;
-      console.log("Cleared error");
     },
     updateTask: (state, action: PayloadAction<Task>) => {
       const updatedTask = action.payload;
-      console.log("task get", updatedTask);
-      console.log("task assign", action.payload);
+
       const existingTaskIndex = state.tasks.findIndex(
         (task) => task._id === updatedTask._id
       );
@@ -91,11 +80,9 @@ const taskManagementSlice = createSlice({
           ...state.tasks[existingTaskIndex],
           ...updatedTask,
         };
-        console.log("Updated existing task", { taskId: updatedTask._id });
       } else {
         state.tasks = [updatedTask, ...state.tasks];
         state.total += 1;
-        console.log("Added new task", { taskId: updatedTask._id });
       }
     },
     setIsManagement: (state, action: PayloadAction<boolean>) => {
@@ -107,29 +94,22 @@ const taskManagementSlice = createSlice({
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
         state.error = null;
-        console.log("Fetch tasks pending");
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.loading = false;
         state.tasks = action.payload.data as Task[];
         state.total = action.payload.total;
-        console.log("Fetch tasks fulfilled", {
-          taskCount: action.payload.data.length,
-        });
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        console.log("Fetch tasks rejected", { error: action.payload });
       })
       .addCase(createTask.fulfilled, (state, action) => {
         state.tasks = [action.payload, ...state.tasks];
         state.total += 1;
-        console.log("Create task fulfilled", { taskId: action.payload._id });
       })
       .addCase(createTask.rejected, (state, action) => {
         state.error = action.payload as string;
-        console.log("Create task rejected", { error: action.payload });
       })
       .addCase(updateTaskStatus.fulfilled, (state, action) => {
         state.tasks = state.tasks.map((task) =>
@@ -137,14 +117,9 @@ const taskManagementSlice = createSlice({
             ? { ...task, status: action.payload.status }
             : task
         );
-        console.log("Update task status fulfilled", {
-          taskId: action.payload.taskId,
-          status: action.payload.status,
-        });
       })
       .addCase(updateTaskStatus.rejected, (state, action) => {
         state.error = action.payload as string;
-        console.log("Update task status rejected", { error: action.payload });
       })
       .addCase(assignTask.fulfilled, (state, action) => {
         state.tasks = state.tasks.map((task) =>
@@ -152,14 +127,9 @@ const taskManagementSlice = createSlice({
             ? { ...task, assignedTo: action.payload.assignedTo }
             : task
         );
-        console.log("Assign task fulfilled", {
-          taskId: action.payload.taskId,
-          userId: action.payload.userId,
-        });
       })
       .addCase(assignTask.rejected, (state, action) => {
         state.error = action.payload as string;
-        console.log("Assign task rejected", { error: action.payload });
       });
   },
 });

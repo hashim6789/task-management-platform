@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
 import { Task, TaskStatus, STATUS_ORDER } from "@/types";
 import { RootState } from "@/store";
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { AxiosError } from "axios";
 import {
   setSearch,
@@ -210,7 +210,6 @@ export function useTaskManagement() {
       header: "Due Date",
       render: (task?: Task) => {
         const date = task?.dueDate ? new Date(task.dueDate) : null;
-        console.log(task);
         const isOverdue =
           date &&
           isValid(date) &&

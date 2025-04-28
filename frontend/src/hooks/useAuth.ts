@@ -1,4 +1,4 @@
-import { useAppDispatch } from "@/store/hiook";
+import { useAppDispatch } from "@/store/hook";
 import { clearUser, setUser } from "@/store/slices/authSlice";
 import { RootState } from "@/store";
 import { ClientToServerEvents, ServerToClientEvents, User } from "@/types";
@@ -40,42 +40,45 @@ export const useAuth = (): AuthState => {
     }
   }, [dispatch, isAuthenticated, user]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      const response = await axiosInstance.post<User>("/auth/login", {
-        email,
-        password,
-      });
-      const user = response.data;
-
-      await dispatch(setUser(user));
-      if (user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/user/dashboard");
-      }
-
-      showToast({
-        message: AuthMessages.LOGIN_SUCCESS,
-        type: ToastType.SUCCESS,
-      });
-    } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        showToast({
-          message: error.response?.data.error || AuthMessages.INVALID_EMAIL,
-          type: ToastType.ERROR,
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        setIsLoading(true);
+        const response = await axiosInstance.post<User>("/auth/login", {
+          email,
+          password,
         });
-      } else {
+        const user = response.data;
+
+        await dispatch(setUser(user));
+        if (user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/user/dashboard");
+        }
+
         showToast({
-          message: AuthMessages.INVALID_EMAIL,
-          type: ToastType.ERROR,
+          message: AuthMessages.LOGIN_SUCCESS,
+          type: ToastType.SUCCESS,
         });
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          showToast({
+            message: error.response?.data.error || AuthMessages.INVALID_EMAIL,
+            type: ToastType.ERROR,
+          });
+        } else {
+          showToast({
+            message: AuthMessages.INVALID_EMAIL,
+            type: ToastType.ERROR,
+          });
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [dispatch, navigate]
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -89,7 +92,7 @@ export const useAuth = (): AuthState => {
       showToast({ message: AuthMessages.LOGIN_FAILED, type: ToastType.ERROR });
       console.error(AuthMessages.LOGIN_FAILED, error);
     }
-  }, []);
+  }, [dispatch]);
 
   return { user, login, logout, isLoading };
 };
