@@ -9,8 +9,6 @@ import {
 import { HttpStatus } from "@/constants";
 import { TaskPopulatedDTO, TaskQuery } from "@/types/task";
 import { PaginatedData } from "@/types";
-import { ITask } from "@/models";
-import { Types } from "mongoose";
 
 export class TaskController implements ITaskController {
   constructor(private _taskService: ITaskService) {}

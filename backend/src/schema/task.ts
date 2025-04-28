@@ -17,8 +17,12 @@ export const createTaskSchema = z
       .string()
       .min(10, "Description must be at least 10 characters")
       .max(500, "Description cannot exceed 500 characters"),
-    dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Please select a valid date",
+    // dueDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    //   message: "Please select a valid date",
+    // }),
+    dueDate: z.coerce.date({
+      required_error: "Due Date is required",
+      invalid_type_error: "Due Date must be a valid date",
     }),
   })
   .strict();

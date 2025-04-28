@@ -7,15 +7,16 @@ import {
   TaskStatusType,
 } from "@/types/task";
 import mongoose from "mongoose";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface ITaskRepository {
+export interface ITaskRepository extends IBaseRepository<ITask> {
   findTaskById(id: mongoose.Types.ObjectId): Promise<TaskPopulatedDTO | null>;
   findAllByQuery(query: TaskQuery): Promise<PaginatedData<TaskPopulatedDTO>>;
   findAllByQuery(
     query: TaskQuery,
     assignedBy: string
   ): Promise<PaginatedData<TaskPopulatedDTO>>;
-  createTask(task: CreateTaskDTO): Promise<ITask>;
+  // createTask(task: CreateTaskDTO): Promise<ITask>;
   assignTaskToUser(
     id: mongoose.Types.ObjectId,
     userId: string

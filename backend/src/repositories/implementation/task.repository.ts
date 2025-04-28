@@ -1,6 +1,6 @@
 import { ITask } from "@/models";
 import mongoose, { FilterQuery, Model, ObjectId } from "mongoose";
-import { BaseRepository } from "../base.repository";
+import { BaseRepository } from "./base.repository";
 import { ITaskRepository } from "../interface";
 import {
   CreateTaskDTO,
@@ -19,20 +19,20 @@ export class TaskRepository
     super(model);
   }
 
-  async createTask(task: CreateTaskDTO): Promise<ITask> {
-    try {
-      const newTask = new this.model({
-        title: task.title,
-        description: task.description,
-        dueDate: task.dueDate,
-      });
+  // async createTask(task: CreateTaskDTO): Promise<ITask> {
+  //   try {
+  //     const newTask = new this.model({
+  //       title: task.title,
+  //       description: task.description,
+  //       dueDate: task.dueDate,
+  //     });
 
-      return await newTask.save();
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error creating task");
-    }
-  }
+  //     return await newTask.save();
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error("Error creating task");
+  //   }
+  // }
 
   async findAllByQuery(
     query: TaskQuery,

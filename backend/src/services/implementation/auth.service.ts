@@ -19,8 +19,7 @@ export class AuthService implements IAuthService {
     identifier: string,
     password: string
   ): Promise<{ accessToken: string; refreshToken: string; user: IUser }> {
-    const user =
-      await this._userRepository.findOneWithUsernameOrEmail(identifier);
+    const user = await this._userRepository.findByEmail(identifier);
 
     if (!user) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
@@ -70,7 +69,7 @@ export class AuthService implements IAuthService {
   }
 
   async getUserById(userId: string): Promise<IUser> {
-    const user = await this._userRepository.findUserById(userId);
+    const user = await this._userRepository.findById(userId);
 
     if (!user) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);

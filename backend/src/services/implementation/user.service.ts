@@ -26,7 +26,7 @@ export class UserService implements IUserService {
     return this._userRepository.create({ ...data, password: hashedPassword });
   }
   async blockUnblockUser(data: BlockUserDTO): Promise<IUser> {
-    let user = await this._userRepository.findUserById(data.id);
+    let user = await this._userRepository.findById(data.id);
     if (!user || user.role === "admin") {
       throw createHttpError(
         HttpStatus.BAD_REQUEST,
@@ -35,7 +35,7 @@ export class UserService implements IUserService {
     }
 
     if (user.isBlocked !== data.isBlocked) {
-      user = await this._userRepository.updateUser(data.id, {
+      user = await this._userRepository.update(data.id, {
         isBlocked: data.isBlocked,
       });
       if (!user) {
