@@ -35,11 +35,13 @@ export function UserFilters({
     };
   }, [debouncedSetSearch]);
 
+  console.log("search", search);
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-4">
       <Input
         placeholder="Search by username or email"
-        value={search}
+        defaultValue={search}
         onChange={(e) => debouncedSetSearch(e.target.value)}
         className="max-w-sm"
       />

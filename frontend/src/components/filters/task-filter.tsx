@@ -26,6 +26,7 @@ export function TaskFilters({
   // Debounced version of setSearch
   const debouncedSetSearch = useMemo(() => {
     return debounce((value: string) => {
+      console.log("search", value);
       setSearch(value);
     }, 500);
   }, [setSearch]);
@@ -35,6 +36,8 @@ export function TaskFilters({
       debouncedSetSearch.cancel(); // Cleanup on unmount
     };
   }, [debouncedSetSearch]);
+
+  console.log("search", search);
 
   return (
     <div className="flex flex-col sm:flex-row gap-4">
